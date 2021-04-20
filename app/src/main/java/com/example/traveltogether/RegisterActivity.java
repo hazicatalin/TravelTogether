@@ -15,6 +15,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -82,7 +83,7 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
         if(!password.equals(confPassword)) {
-            etConfPassword.setError("Password do not match");
+            etConfPassword.setError("Password do not match!");
             etConfPassword.requestFocus();
             return;
         }
@@ -100,8 +101,10 @@ public class RegisterActivity extends AppCompatActivity {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if(task.isSuccessful()){
-                                        Toast.makeText(RegisterActivity.this, "Register successfully!", Toast.LENGTH_SHORT).show();
-                                        startActivity(new Intent(getApplicationContext(), HomeActivity.class));
+                                        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+                                        firebaseUser.sendEmailVerification();
+                                        Toast.makeText(RegisterActivity.this, "Check your email to verify your account!", Toast.LENGTH_SHORT).show();
+                                        startActivity(new Intent(getApplicationContext(), LoginActivity.class));
                                     }else{
                                         Toast.makeText(RegisterActivity.this, "Register failed! Try again!", Toast.LENGTH_SHORT).show();
                                     }
