@@ -146,6 +146,17 @@
             android:textColor="@color/black"
             android:textSize="20dp"/>
 
+        <Button
+            android:id="@+id/log_out"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center|bottom"
+            android:text="Log out"
+            android:textSize="15dp"
+            android:backgroundTint="@color/black"
+            android:textColor="@color/white"
+            android:textStyle="bold"/>
+
     </LinearLayout>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView

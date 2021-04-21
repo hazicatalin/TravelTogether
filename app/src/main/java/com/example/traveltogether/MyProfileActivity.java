@@ -19,11 +19,22 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class MyProfileActivity extends AppCompatActivity {
-    String name = "Hazi", surname = "Ionut-Catalin", phone="0765166085", description = "ala bala portocala";
+    String name, surname, phone="0765166085", description = "ala bala portocala", userId;
     TextView name_tw, surname_tw, phone_tw, description_tw;
     ImageButton edit_name, edit_surname, edit_descriprion, edit_phone;
+    Button logout;
+
+    private FirebaseUser user;
+    private DatabaseReference reference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,9 +48,32 @@ public class MyProfileActivity extends AppCompatActivity {
         edit_surname = findViewById(R.id.edit_surname);
         edit_phone = findViewById(R.id.edit_phone);
         edit_descriprion = findViewById(R.id.edit_description);
+        logout = findViewById(R.id.log_out);
 
-        name_tw.setText(name);
-        surname_tw.setText(surname);
+        user = FirebaseAuth.getInstance().getCurrentUser();
+        reference = FirebaseDatabase.getInstance().getReference("Users");
+        userId = user.getUid();
+
+        reference.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                User userProfile = snapshot.getValue(User.class);
+                if(userProfile!=null){
+                    name = userProfile.name;
+                    surname = userProfile.email;
+                    name_tw.setText(name);
+                    surname_tw.setText(surname);
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(MyProfileActivity.this, "ESomething wrong happened", Toast.LENGTH_SHORT).show();
+
+            }
+        });
+
         phone_tw.setText(phone);
         description_tw.setText(description);
 
@@ -171,6 +205,14 @@ public class MyProfileActivity extends AppCompatActivity {
                 });
                 AlertDialog alertDialog = builder.create();
                 alertDialog.show();
+            }
+        });
+
+        logout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FirebaseAuth.getInstance().signOut();
+                startActivity(new Intent(getApplicationContext(), LoginActivity.class));
             }
         });
     }

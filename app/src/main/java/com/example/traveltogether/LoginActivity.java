@@ -1,8 +1,10 @@
 package com.example.traveltogether;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Patterns;
@@ -18,7 +20,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 public class LoginActivity extends AppCompatActivity {
-    Button register, login;
+    Button register, login, forgotPassword;
     EditText etEmail, etPassword;
     private FirebaseAuth mAuth;
 
@@ -31,8 +33,54 @@ public class LoginActivity extends AppCompatActivity {
         register = (Button) findViewById(R.id.register);
         etEmail = findViewById(R.id.email_login);
         etPassword = findViewById(R.id.password_login);
+        forgotPassword = (Button) findViewById(R.id.forgot_password);
 
         mAuth = FirebaseAuth.getInstance();
+
+        forgotPassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String email = etEmail.getText().toString().trim();
+                if(email.isEmpty()){
+                    etEmail.setError("Email is required to reset your password!");
+                    etEmail.requestFocus();
+                    return;
+                }
+                if(!Patterns.EMAIL_ADDRESS.matcher(email).matches()){
+                    etEmail.setError("Please provide a valid email");
+                    etEmail.requestFocus();
+                    return;
+                }
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
+                builder.setTitle("Change password");
+                builder.setMessage("Are you sure you want to change your password?");
+                builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mAuth.sendPasswordResetEmail(email).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if(task.isSuccessful()){
+                                    Toast.makeText(LoginActivity.this, "Check your email to reset yout password!", Toast.LENGTH_SHORT).show();
+                                }else{
+                                    Toast.makeText(LoginActivity.this, "Something went wrong! Try again!", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+                    }
+                });
+                builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+                AlertDialog alertDialog = builder.create();
+                alertDialog.show();
+
+            }
+        });
 
         login.setOnClickListener(new View.OnClickListener() {
             @Override
