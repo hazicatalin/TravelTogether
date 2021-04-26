@@ -20,12 +20,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
@@ -33,26 +39,35 @@ import java.util.Calendar;
 import java.util.List;
 
 public class AddTripActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener{
-    int ok_start = 1, ok_dest = 1;
-    private TextView dateText;
+    int ok_start = 1, ok_dest = 1, ok_save = 1;
+    private TextView dateText, startTw, destinationTw;
     EditText start, destination, description;
-    String str_start, str_dest, str_desc, str_date;
+    String str_start, str_dest, str_desc, str_date, userId;
     RadioGroup radioGroup;
     RadioButton radioButton;
     int radioButtonID;
-    private Button button;
+    private Button addDate, create;
+
+    private FirebaseUser user;
+    DatabaseReference reff;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_trip);
-        Log.i("logx", "onCreate");
+
         dateText = findViewById(R.id.data_text);
-        button = findViewById(R.id.data_button);
+        addDate = findViewById(R.id.data_button);
         start = findViewById(R.id.start);
         destination = findViewById(R.id.destinatie);
         description = findViewById(R.id.descriere);
         radioGroup = findViewById(R.id.radio_group);
+        create = findViewById(R.id.create_button);
+        startTw = findViewById(R.id.start_tw);
+        destinationTw = findViewById(R.id.destinatie_tw);
+
+        user = FirebaseAuth.getInstance().getCurrentUser();
+        userId = user.getUid();
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setSelectedItemId(R.id.add_trip);
@@ -79,7 +94,7 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
             }
         });
 
-        button.setOnClickListener(new View.OnClickListener() {
+        addDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 showDatePickerDialog();
@@ -112,6 +127,76 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
                 return false;
             }
         });
+
+        create.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                createTrip();
+            }
+        });
+
+    }
+
+    private void createTrip(){
+        String type = " ";
+        str_start = start.getText().toString().trim();
+        str_dest = destination.getText().toString().trim();
+        str_desc = description.getText().toString().trim();
+        reff = FirebaseDatabase.getInstance().getReference().child("Trips");
+        if (radioGroup.getCheckedRadioButtonId() == -1)
+        {
+            radioButton = findViewById(R.id.hike);
+            radioButton.setError("Select a travel type!");
+            radioGroup.requestFocus();
+            return;
+        }
+        if(str_start.isEmpty()){
+            startTw.setError("Start location is required!");
+            startTw.requestFocus();
+            return;
+        }
+        if(str_dest.isEmpty()){
+            destinationTw.setError("Destination is required!");
+            destinationTw.requestFocus();
+            return;
+        }
+        if(str_date==null || str_date.isEmpty()){
+            dateText.setError("Date is required!");
+            dateText.requestFocus();
+            return;
+        }
+        if(str_desc.isEmpty()){
+            description.setError("Description is required!");
+            description.requestFocus();
+            return;
+        }
+        if(radioButtonID == findViewById(R.id.car).getId()) {
+            type = "car";
+        }
+        if(radioButtonID == findViewById(R.id.motorbike).getId()) {
+            type = "motorbike";
+        }
+        if(radioButtonID == findViewById(R.id.bike).getId()) {
+            type = "bike";
+        }
+        if(radioButtonID == findViewById(R.id.electric_scooter).getId()) {
+            type = "electric scooter";
+        }
+        if(radioButtonID == findViewById(R.id.hike).getId()) {
+            type = "hike";
+        }
+        radioGroup.clearCheck();
+        description.setText("");
+        destination.setText("");
+        start.setText("");
+        str_date = "";
+
+        Post post = new Post(str_dest,str_start, str_desc, userId, type, str_date);
+        reff.push().setValue(post);
+        Toast.makeText(AddTripActivity.this, "Trip created successfully!", Toast.LENGTH_SHORT).show();
+        SharedPreferences preferences = getSharedPreferences("add", MODE_PRIVATE);
+        preferences.edit().clear().commit();
+        startActivity(new Intent(getApplicationContext(), AddTripActivity.class));
 
     }
 
@@ -162,18 +247,20 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
     protected void onPause() {
         super.onPause();
         Log.i("logx", "onPause");
-        SharedPreferences preferences = getSharedPreferences("add", MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        str_start = start.getText().toString();
-        str_dest = destination.getText().toString();
-        str_desc = description.getText().toString();
-        radioButtonID = radioGroup.getCheckedRadioButtonId();
-        editor.putString("start", str_start);
-        editor.putString("dest", str_dest);
-        editor.putString("desc", str_desc);
-        editor.putString("date", str_date);
-        editor.putInt("radioButton", radioButtonID);
-        editor.apply();
+        if(ok_save==1) {
+            SharedPreferences preferences = getSharedPreferences("add", MODE_PRIVATE);
+            SharedPreferences.Editor editor = preferences.edit();
+            str_start = start.getText().toString().trim();
+            str_dest = destination.getText().toString().trim();
+            str_desc = description.getText().toString().trim();
+            radioButtonID = radioGroup.getCheckedRadioButtonId();
+            editor.putString("start", str_start);
+            editor.putString("dest", str_dest);
+            editor.putString("desc", str_desc);
+            editor.putString("date", str_date);
+            editor.putInt("radioButton", radioButtonID);
+            editor.apply();
+        }
     }
 
     @Override
