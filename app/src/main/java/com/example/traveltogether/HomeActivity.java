@@ -26,6 +26,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,17 +38,22 @@ import java.util.List;
 public class HomeActivity extends AppCompatActivity {
 
     ListView listView;
-    String titles[] = {"transfagarasan", "mare", "Brasov", "Delta Dunarii", "Straja", "Bucuresti"};
-    String dates[] = {"15.iunie.2021", "22.august.2021", "1.mai.2021", "19.septembrie.2021", "5.ianuarie.2022", "15.mai.2021"};
+    ArrayList <Post> posts = new ArrayList <Post>();
+    //String titles[] = {"transfagarasan", "mare", "Brasov", "Delta Dunarii", "Straja", "Bucuresti"};
+    //String dates[] = {"15.iunie.2021", "22.august.2021", "1.mai.2021", "19.septembrie.2021", "5.ianuarie.2022", "15.mai.2021"};
     int image = R.drawable.im_travel;
-    List <String> titles2 = new ArrayList <String>();
-    List <String> dates2 = new ArrayList <String>();
+    ArrayList <Post> posts2 = new ArrayList <Post>();
     Toolbar toolbar;
+    private FirebaseDatabase database;
+    private DatabaseReference reference;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
+        readTrips();
         listView = findViewById(R.id.traels_list);
         toolbar = findViewById(R.id.top_bar);
         toolbar.setTitle("");
@@ -81,18 +91,41 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
-        MyAdapter adapter = new MyAdapter(this, titles, dates);
-        listView.setAdapter(adapter);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(HomeActivity.this, titles[position], Toast.LENGTH_SHORT).show();
+                Toast.makeText(HomeActivity.this, posts.get(position).get_destination(), Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(getBaseContext(), PostActivity.class);
-                intent.putExtra("title", titles[position]);
-                intent.putExtra("data", dates[position]);
+                intent.putExtra("title",posts.get(position).get_destination());
+                intent.putExtra("data", posts.get(position).get_date());
+                intent.putExtra("userId", posts.get(position).get_creator_id());
+                intent.putExtra("description", posts.get(position).get_description());
                 startActivity(intent);
-                Log.v("itemclick: ", titles[position]);
+                Log.v("itemclick: ", posts.get(position).get_destination());
+            }
+        });
+    }
+
+    public void readTrips(){
+        reference = FirebaseDatabase.getInstance().getReference().child("Trips");
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for(DataSnapshot dataSnapshot: snapshot.getChildren()){
+                    Post post = dataSnapshot.getValue(Post.class);
+                    posts.add(post);
+                    Log.d("array", post.get_destination());
+                    Log.d("array", String.valueOf(posts.size()));
+                }
+                Log.d("size", String.valueOf(posts.size()));
+                MyAdapter adapter = new MyAdapter(HomeActivity.this, posts);
+                listView.setAdapter(adapter);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
             }
         });
     }
@@ -112,7 +145,7 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public boolean onMenuItemActionCollapse(MenuItem item) {
                 Toast.makeText(HomeActivity.this, "Search is collapse", Toast.LENGTH_SHORT).show();
-                MyAdapter adapter2 = new MyAdapter(HomeActivity.this, titles2.toArray(new String[0]), dates2.toArray(new String[0]));
+                MyAdapter adapter2 = new MyAdapter(HomeActivity.this, posts2);
                 listView.setAdapter(adapter2);
                 return true;
             }
@@ -130,15 +163,14 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextChange(String newText) {
                 if(!newText.isEmpty()) {
-                    titles2.clear();
-                    for (int i = 0; i < titles.length; i++) {
-                        if (titles[i].contains(newText) && !newText.isEmpty()) {
-                            titles2.add(titles[i]);
-                            dates2.add(dates[i]);
+                    posts2.clear();
+                    for (int i = 0; i < posts.size(); i++) {
+                        if (posts.get(i).get_description().contains(newText) && !newText.isEmpty()) {
+                            posts2.add(posts.get(i));
                             Log.v("nt", newText);
                         }
                     }
-                    MyAdapter adapter2 = new MyAdapter(HomeActivity.this, titles2.toArray(new String[0]), dates2.toArray(new String[0]));
+                    MyAdapter adapter2 = new MyAdapter(HomeActivity.this, posts2);
                     listView.setAdapter(adapter2);
                 }
                 return false;
@@ -147,17 +179,15 @@ public class HomeActivity extends AppCompatActivity {
         return true;
     }
 
-    class MyAdapter extends ArrayAdapter<String>{
+    class MyAdapter extends ArrayAdapter<Post>{
         Context context;
-        String rTitle[];
-        String rDate[];
+        List <Post> rPost;
         int rImage;
 
-        MyAdapter (Context c, String title[], String date[]){
-            super(c, R.layout.travel, R.id.travel_title, title);
+        MyAdapter (Context c, ArrayList<Post> post){
+            super(c, R.layout.travel, R.id.travel_title, post);
             this.context=c;
-            this.rTitle=title;
-            this.rDate = date;
+            this.rPost=post;
             this.rImage=image;
         }
 
@@ -168,10 +198,35 @@ public class HomeActivity extends AppCompatActivity {
             View travel = layoutInflater.inflate(R.layout.travel, parent, false);
             TextView mytitle = travel.findViewById(R.id.travel_title);
             TextView mydate = travel.findViewById(R.id.travel_date);
+            TextView myway = travel.findViewById(R.id.travel_by);
+            TextView mystart = travel.findViewById(R.id.travel_start);
+            TextView myowner = travel.findViewById(R.id.travel_owner);
             ImageView myimage = travel.findViewById(R.id.image);
 
-            mytitle.setText(rTitle[position]);
-            mydate.setText(rDate[position]);
+            reference = FirebaseDatabase.getInstance().getReference("Users");
+
+            reference.child(rPost.get(position).get_creator_id()).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    User userProfile = snapshot.getValue(User.class);
+                    if(userProfile!=null){
+                        myowner.setText(userProfile.name);
+
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+
+
+
+            mytitle.setText(rPost.get(position).get_destination());
+            mydate.setText(rPost.get(position).get_date());
+            myway.setText(rPost.get(position).get_travel_type());
+            mystart.setText(rPost.get(position).get_start_location());
             myimage.setImageResource(rImage);
             return travel;
         }

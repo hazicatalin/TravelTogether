@@ -1,7 +1,7 @@
 package com.example.traveltogether;
 
 public class Post {
-    private String destination, startLocation, description, creatorId, travelType, date;
+    public String destination, startLocation, description, creatorId, travelType, date;
     public Post(){
 
     }

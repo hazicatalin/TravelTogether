@@ -142,7 +142,7 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
         str_start = start.getText().toString().trim();
         str_dest = destination.getText().toString().trim();
         str_desc = description.getText().toString().trim();
-        reff = FirebaseDatabase.getInstance().getReference().child("Trips");
+        reff = FirebaseDatabase.getInstance().getReference("Trips");
         if (radioGroup.getCheckedRadioButtonId() == -1)
         {
             radioButton = findViewById(R.id.hike);
@@ -185,13 +185,14 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
         if(radioButtonID == findViewById(R.id.hike).getId()) {
             type = "hike";
         }
+
+        Post post = new Post(str_dest,str_start, str_desc, userId, type, str_date);
         radioGroup.clearCheck();
         description.setText("");
         destination.setText("");
         start.setText("");
         str_date = "";
 
-        Post post = new Post(str_dest,str_start, str_desc, userId, type, str_date);
         reff.push().setValue(post);
         Toast.makeText(AddTripActivity.this, "Trip created successfully!", Toast.LENGTH_SHORT).show();
         SharedPreferences preferences = getSharedPreferences("add", MODE_PRIVATE);
