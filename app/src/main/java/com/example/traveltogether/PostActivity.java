@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
@@ -16,9 +17,11 @@ import com.google.firebase.database.ValueEventListener;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class PostActivity extends AppCompatActivity {
+
     TextView title, date, name, description;
     String titleStr, dateStr, userStr, descriptionStr;
     CircleImageView profile;
+    FloatingActionButton messageBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +36,7 @@ public class PostActivity extends AppCompatActivity {
         titleStr = getIntent().getStringExtra("title");
         dateStr = getIntent().getStringExtra("data");
         userStr = getIntent().getStringExtra("userId");
+        messageBtn = findViewById(R.id.message);
         descriptionStr = getIntent().getStringExtra("description");
 
         title.setText(titleStr);
@@ -55,11 +59,20 @@ public class PostActivity extends AppCompatActivity {
             }
         });
 
+        messageBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
+                intent.putExtra("userId", userStr);
+                startActivity(intent);
+            }
+        });
+
         profile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
-                intent.putExtra("user", userStr);
+                intent.putExtra("userId", userStr);
                 startActivity(intent);
             }
         });

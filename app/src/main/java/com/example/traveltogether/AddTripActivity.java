@@ -36,6 +36,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 
 public class AddTripActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener{
@@ -193,7 +194,16 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
         start.setText("");
         str_date = "";
 
-        reff.push().setValue(post);
+        HashMap<String, Object> hashMap = new HashMap<>();
+        hashMap.put("destination", post.get_destination());
+        hashMap.put("startLocation", post.get_start_location());
+        hashMap.put("description", post.get_description());
+        hashMap.put("creatorId", post.get_creator_id());
+        hashMap.put("travelType", post.get_travel_type());
+        hashMap.put("date", post.get_date());
+
+
+        reff.push().setValue(hashMap);
         Toast.makeText(AddTripActivity.this, "Trip created successfully!", Toast.LENGTH_SHORT).show();
         SharedPreferences preferences = getSharedPreferences("add", MODE_PRIVATE);
         preferences.edit().clear().commit();
