@@ -15,7 +15,7 @@
         <activity android:name=".RegisterActivity" />
         <activity android:name=".HomeActivity" />
         <activity android:name=".MyProfileActivity" />
-        <activity android:name=".FavoriteTripsActivity" />
+        <activity android:name=".ChatsActivity" />
         <activity android:name=".AddTripActivity" />
         <activity android:name=".MyTripsActivity" />
         <activity android:name=".LoginActivity" />

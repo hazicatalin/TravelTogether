@@ -5,7 +5,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.view.MenuItemCompat;
 
 import android.content.Context;
 import android.content.Intent;
@@ -74,8 +73,8 @@ public class HomeActivity extends AppCompatActivity {
                         startActivity(new Intent(getApplicationContext(), AddTripActivity.class));
                         overridePendingTransition(0,0);
                         return true;
-                    case R.id.favorite_trips:
-                        startActivity(new Intent(getApplicationContext(), FavoriteTripsActivity.class));
+                    case R.id.chats:
+                        startActivity(new Intent(getApplicationContext(), ChatsActivity.class));
                         overridePendingTransition(0,0);
                         return true;
                     case R.id.my_profile:

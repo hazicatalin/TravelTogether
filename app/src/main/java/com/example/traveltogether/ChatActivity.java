@@ -2,6 +2,8 @@ package com.example.traveltogether;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 import android.view.View;
@@ -17,7 +19,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class ChatActivity extends AppCompatActivity {
 
@@ -26,6 +30,11 @@ public class ChatActivity extends AppCompatActivity {
     String messageStr, userIdStr;
     TextView receiverNameTw;
     FirebaseUser fUser;
+
+    MessageAdapter messageAdapter;
+    List <Message> messages;
+
+    RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +45,11 @@ public class ChatActivity extends AppCompatActivity {
         messageEt = findViewById(R.id.message_et);
         receiverNameTw = findViewById(R.id.receiver_name);
         userIdStr = getIntent().getStringExtra("userId");
+        recyclerView = findViewById(R.id.recycle_view);
+        recyclerView.setHasFixedSize(true);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
+        linearLayoutManager.setStackFromEnd(true);
+        recyclerView.setLayoutManager(linearLayoutManager);
 
         fUser = FirebaseAuth.getInstance().getCurrentUser();
 
@@ -64,6 +78,7 @@ public class ChatActivity extends AppCompatActivity {
                 }
             }
         });
+        readMessages(fUser.getUid(), userIdStr);
     }
 
     private void sendMessage(String sender, String receiver, String message){
@@ -75,5 +90,32 @@ public class ChatActivity extends AppCompatActivity {
         hashMap.put("message", message);
 
         reference.child("Chats").push().setValue(hashMap);
+    }
+
+    private void readMessages(final String myId, final String userId){
+        messages = new ArrayList<>();
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Chats");
+
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                messages.clear();
+                for(DataSnapshot snapshot : dataSnapshot.getChildren()){
+                    Message message = snapshot.getValue(Message.class);
+                    if(message.getReceiver().equals(myId) && message.getSender().equals(userId)||
+                        message.getReceiver().equals(userId)&& message.getSender().equals(myId)){
+                        messages.add(message);
+                    }
+                    messageAdapter = new MessageAdapter(ChatActivity.this, messages);
+                    recyclerView.setAdapter(messageAdapter);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
     }
 }

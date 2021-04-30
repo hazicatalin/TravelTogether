@@ -92,8 +92,8 @@ public class MyProfileActivity extends AppCompatActivity {
                         startActivity(new Intent(getApplicationContext(), AddTripActivity.class));
                         overridePendingTransition(0,0);
                         return true;
-                    case R.id.favorite_trips:
-                        startActivity(new Intent(getApplicationContext(), FavoriteTripsActivity.class));
+                    case R.id.chats:
+                        startActivity(new Intent(getApplicationContext(), ChatsActivity.class));
                         overridePendingTransition(0,0);
                         return true;
                     case R.id.my_profile:

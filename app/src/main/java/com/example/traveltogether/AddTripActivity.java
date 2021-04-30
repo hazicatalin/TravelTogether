@@ -20,8 +20,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.Autocomplete;
@@ -33,7 +31,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -112,8 +109,8 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
                         return true;
                     case R.id.add_trip:
                         return true;
-                    case R.id.favorite_trips:
-                        startActivity(new Intent(getApplicationContext(), FavoriteTripsActivity.class));
+                    case R.id.chats:
+                        startActivity(new Intent(getApplicationContext(), ChatsActivity.class));
                         overridePendingTransition(0,0);
                         return true;
                     case R.id.my_profile:
