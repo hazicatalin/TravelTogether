@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -31,7 +32,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class HomeActivity extends AppCompatActivity {
@@ -96,10 +99,7 @@ public class HomeActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Toast.makeText(HomeActivity.this, posts.get(position).get_destination(), Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(getBaseContext(), PostActivity.class);
-                intent.putExtra("title",posts.get(position).get_destination());
-                intent.putExtra("data", posts.get(position).get_date());
-                intent.putExtra("userId", posts.get(position).get_creator_id());
-                intent.putExtra("description", posts.get(position).get_description());
+                intent.putExtra("post", (Serializable) posts.get(position));
                 startActivity(intent);
                 Log.v("itemclick: ", posts.get(position).get_destination());
             }
@@ -118,6 +118,7 @@ public class HomeActivity extends AppCompatActivity {
                     Log.d("array", String.valueOf(posts.size()));
                 }
                 Log.d("size", String.valueOf(posts.size()));
+                Collections.reverse(posts);
                 MyAdapter adapter = new MyAdapter(HomeActivity.this, posts);
                 listView.setAdapter(adapter);
             }
@@ -144,6 +145,7 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public boolean onMenuItemActionCollapse(MenuItem item) {
                 Toast.makeText(HomeActivity.this, "Search is collapse", Toast.LENGTH_SHORT).show();
+                Collections.reverse(posts2);
                 MyAdapter adapter2 = new MyAdapter(HomeActivity.this, posts2);
                 listView.setAdapter(adapter2);
                 return true;
@@ -169,6 +171,7 @@ public class HomeActivity extends AppCompatActivity {
                             Log.v("nt", newText);
                         }
                     }
+                    Collections.reverse(posts2);
                     MyAdapter adapter2 = new MyAdapter(HomeActivity.this, posts2);
                     listView.setAdapter(adapter2);
                 }
@@ -222,10 +225,20 @@ public class HomeActivity extends AppCompatActivity {
 
 
 
-            mytitle.setText(rPost.get(position).get_destination());
+            if(rPost.get(position).get_destination().length()>20){
+                mytitle.setText(rPost.get(position).get_destination().substring(0,20)+"...");
+            }
+            else {
+                mytitle.setText(rPost.get(position).get_destination());
+            }
             mydate.setText(rPost.get(position).get_date());
             myway.setText(rPost.get(position).get_travel_type());
-            mystart.setText(rPost.get(position).get_start_location());
+            if(rPost.get(position).get_start_location().length()>15){
+                mystart.setText(rPost.get(position).get_start_location().substring(0,15)+"...");
+            }
+            else {
+                mystart.setText(rPost.get(position).get_start_location());
+            }
             myimage.setImageResource(rImage);
             return travel;
         }

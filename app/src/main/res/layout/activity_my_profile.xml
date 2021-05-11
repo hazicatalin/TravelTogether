@@ -27,8 +27,8 @@
             android:id="@+id/profile_image"
             android:layout_width="150dp"
             android:layout_height="150dp"
-            android:layout_marginTop="20dp"
             android:layout_gravity="center"
+            android:layout_marginTop="20dp"
             android:src="@drawable/profile"
             app:civ_border_width="1dp"
             app:civ_border_color="#FF000000"/>
@@ -58,35 +58,7 @@
                 android:layout_marginTop="20dp"
                 android:layout_marginLeft="20dp"
                 android:textColor="@color/black"
-                android:textSize="30dp"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:textColor="@color/black"
-                android:text="Surname: "
-                android:textSize="20dp"/>
-
-            <ImageButton
-                android:id="@+id/edit_surname"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:background="@drawable/ic_edit" />
-            <TextView
-                android:id="@+id/surname"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:layout_marginLeft="20dp"
-                android:textColor="@color/black"
-                android:textSize="30dp"/>
+                android:textSize="18dp"/>
         </LinearLayout>
 
         <LinearLayout
@@ -114,7 +86,7 @@
                 android:layout_marginTop="20dp"
                 android:layout_marginLeft="20dp"
                 android:textColor="@color/black"
-                android:textSize="30dp"/>
+                android:textSize="18dp"/>
         </LinearLayout>
 
         <LinearLayout
@@ -136,15 +108,16 @@
                 android:layout_gravity="center"
                 android:background="@drawable/ic_edit" />
         </LinearLayout>
+
         <TextView
             android:id="@+id/description"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
             android:layout_marginLeft="20dp"
+            android:layout_marginTop="10dp"
             android:layout_marginRight="20dp"
             android:textColor="@color/black"
-            android:textSize="20dp"/>
+            android:textSize="15dp" />
 
         <Button
             android:id="@+id/log_out"

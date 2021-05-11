@@ -25,6 +25,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:clickable="true"
+                android:focusable="true"
                 app:srcCompat="@drawable/ic_message"
                 tools:ignore="VectorDrawableCompat"
                 android:layout_gravity="right|center"
@@ -32,16 +33,28 @@
                 android:backgroundTint="@color/blue_1"/>
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/join"
+                android:id="@+id/call"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:clickable="true"
-                app:srcCompat="@drawable/road"
-                app:maxImageSize="80dp"
+                app:srcCompat="@drawable/ic_call"
+                tools:ignore="VectorDrawableCompat"
                 android:layout_gravity="right|bottom"
                 android:layout_marginRight="10dp"
-                android:layout_marginBottom="10dp"/>
+                android:backgroundTint="#00B811"/>
         </FrameLayout>
+
+        <Button
+            android:id="@+id/join"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="JOIN"
+            android:textColor="@color/black"
+            android:textStyle="italic|bold"
+            android:textSize="20dp"
+            android:clickable="true"
+            android:layout_gravity="center_horizontal"
+            android:backgroundTint="@color/green_1"/>
 
         <TextView
             android:id="@+id/titlu"
@@ -155,7 +168,8 @@
                 android:layout_gravity="center"
                 android:src="@drawable/profile"
                 app:civ_border_width="1dp"
-                app:civ_border_color="#FF000000"/>
+                app:civ_border_color="#FF000000"
+                android:focusable="true" />
 
         </LinearLayout>
 

@@ -7,6 +7,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,6 +22,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -28,9 +32,17 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FileDownloadTask;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ChatsActivity extends AppCompatActivity {
 
@@ -96,7 +108,7 @@ public class ChatsActivity extends AppCompatActivity {
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                //users.clear();
+                list.clear();
                 for(DataSnapshot snapshot : dataSnapshot.getChildren()){
                     Message message = snapshot.getValue(Message.class);
                     if(message.getReceiver().equals(myId) || message.getSender().equals(myId)){
@@ -112,6 +124,7 @@ public class ChatsActivity extends AppCompatActivity {
                         }
                     }
                 }
+                Collections.reverse(list);
                 MyAdapter adapter = new MyAdapter(ChatsActivity.this, list);
                 listView.setAdapter(adapter);
             }
@@ -160,7 +173,6 @@ public class ChatsActivity extends AppCompatActivity {
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     User userProfile = snapshot.getValue(User.class);
                     personName.setText(userProfile.get_name());
-                    //Log.d("users", String.valueOf(users.size()));
                 }
 
                 @Override
@@ -168,6 +180,25 @@ public class ChatsActivity extends AppCompatActivity {
 
                 }
             });
+            StorageReference storageReference = FirebaseStorage.getInstance().getReference();
+            CircleImageView profile_image = findViewById(R.id.profile_image);
+            try {
+                final File file = File.createTempFile(rList.get(position), "jpg");
+                storageReference.child("images/" + rList.get(position)).getFile(file).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                        Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+                        profile_image.setImageBitmap(bitmap);
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(ChatsActivity.this, "Failed uploading photo!", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }catch (IOException ex){
+                Toast.makeText(ChatsActivity.this, "Exception: "+ex.toString(), Toast.LENGTH_SHORT).show();
+            }
             return chatsItem;
         }
     }

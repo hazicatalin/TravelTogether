@@ -72,7 +72,7 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
 
         Places.initialize(getApplicationContext(), "AIzaSyCqGZKpMWZ_lFV2jLKSngjdt1bJL92U4tc");
 
-        start.setFocusable(false);
+        /*start.setFocusable(false);
         start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -80,9 +80,9 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
                 Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fieldList).build(AddTripActivity.this);
                 startActivityForResult(intent, 100);
             }
-        });
+        });*/
 
-        destination.setFocusable(false);
+        /*destination.setFocusable(false);
         destination.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -90,7 +90,7 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
                 Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fieldList).build(AddTripActivity.this);
                 startActivityForResult(intent, 101);
             }
-        });
+        });*/
 
         addDate.setOnClickListener(new View.OnClickListener() {
             @Override

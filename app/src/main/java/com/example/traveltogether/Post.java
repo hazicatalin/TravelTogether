@@ -1,6 +1,9 @@
 package com.example.traveltogether;
 
-public class Post {
+import java.io.Serializable;
+import java.util.ArrayList;
+
+public class Post implements Serializable {
     public String destination, startLocation, description, creatorId, travelType, date;
     public Post(){
 
@@ -37,5 +40,9 @@ public class Post {
 
     public String get_date(){
         return date;
+    }
+
+    public ArrayList<String> get_participants(){
+        return new ArrayList<String>();
     }
 }
