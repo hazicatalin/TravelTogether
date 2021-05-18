@@ -2,17 +2,26 @@ package com.example.traveltogether;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -39,8 +48,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class PostActivity extends AppCompatActivity {
 
     TextView title, date, name, description, nr_participants;
-    String titleStr, dateStr, userStr, descriptionStr, key, userId;
-    ArrayList<String> participantsList;
+    String titleStr, dateStr, userStr, descriptionStr, key, userId, phoneNumber;
     Post post;
     CircleImageView profile;
     FloatingActionButton messageBtn, callBtn;
@@ -80,41 +88,66 @@ public class PostActivity extends AppCompatActivity {
         profile = findViewById(R.id.profile_image);
 
 
-
-        if(userStr.equals(userId)){
-            joinBtn.setVisibility(View.INVISIBLE);
+        if (userStr.equals(userId)) {
             messageBtn.setVisibility(View.INVISIBLE);
             callBtn.setVisibility(View.INVISIBLE);
+            joinBtn.setBackgroundColor(Color.RED);
+            joinBtn.setTextColor(Color.WHITE);
+            joinBtn.setText("Delete");
             reference.child("Trips").child(key).child("participants").addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    int counter=0;
-                    for(DataSnapshot dataSnapshot: snapshot.getChildren()){
-                        counter=counter+1;
+                    int counter = 0;
+                    for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                        counter = counter + 1;
                     }
                     nr_participants.setText(String.valueOf(counter));
                 }
+
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
 
                 }
             });
-        }
-        else{
+            joinBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(PostActivity.this);
+                    builder.setTitle("Delete Trip");
+                    builder.setMessage("Are you sure you want to delete this trip?");
+                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
+                    builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            reference.child("Trips").child(key).removeValue();
+                            startActivity(new Intent(getApplicationContext(), HomeActivity.class));
+
+                        }
+                    });
+                    AlertDialog alertDialog = builder.create();
+                    alertDialog.show();
+                }
+            });
+        } else {
             reference.child("Trips").child(key).child("participants").addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    int counter=0, ok=0;
+                    int counter = 0, ok = 0;
                     String idKey = new String();
-                    for(DataSnapshot dataSnapshot: snapshot.getChildren()){
+                    for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                         String id = dataSnapshot.getValue(String.class);
-                        if(ok==0 && id==userId){
+                        if (id.equals(userId)) {
                             joinBtn.setBackgroundColor(Color.RED);
                             joinBtn.setTextColor(Color.WHITE);
                             idKey = dataSnapshot.getKey();
-                            ok=1;
+                            ok = 1;
                         }
-                        counter=counter+1;
+                        counter = counter + 1;
                         nr_participants.setText(String.valueOf(counter));
 
                         int finalOk = ok;
@@ -122,10 +155,9 @@ public class PostActivity extends AppCompatActivity {
                         joinBtn.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                if(finalOk == 0) {
+                                if (finalOk == 0) {
                                     reference.child("Trips").child(key).child("participants").push().setValue(userId);
-                                }
-                                else {
+                                } else {
                                     reference.child("Trips").child(key).child("participants").child(finalIdKey).removeValue();
                                     joinBtn.setBackgroundColor(Color.parseColor("#01DFD7"));
                                     joinBtn.setTextColor(Color.BLACK);
@@ -134,6 +166,7 @@ public class PostActivity extends AppCompatActivity {
                         });
                     }
                 }
+
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
 
@@ -155,7 +188,7 @@ public class PostActivity extends AppCompatActivity {
                 public void onFailure(@NonNull Exception e) {
                 }
             });
-        }catch (IOException ex){
+        } catch (IOException ex) {
             Log.e("error", ex.toString());
         }
 
@@ -163,8 +196,9 @@ public class PostActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 User userProfile = snapshot.getValue(User.class);
-                if(userProfile!=null){
+                if (userProfile != null) {
                     name.setText(userProfile.name);
+                    phoneNumber = userProfile.get_phoneNumber();
                 }
             }
 
@@ -183,14 +217,54 @@ public class PostActivity extends AppCompatActivity {
             }
         });
 
+        callBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                makeCall();
+            }
+        });
+
         profile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
-                intent.putExtra("userId", userStr);
+                Intent intent;
+                Log.d("posts", userStr);
+                Log.d("posts", userId);
+                if(userId.equals(userStr)) {
+                    intent = new Intent(getApplicationContext(), MyProfileActivity.class);
+                }
+                else{
+                    intent = new Intent(getApplicationContext(), ProfileActivity.class);
+                    intent.putExtra("userId", userStr);
+                }
                 startActivity(intent);
             }
         });
+    }
+
+    void makeCall(){
+        if (phoneNumber != null) {
+            if (ContextCompat.checkSelfPermission(PostActivity.this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(PostActivity.this, new String[] {Manifest.permission.CALL_PHONE}, 1);
+            }
+            else {
+                startActivity(new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + phoneNumber)));
+            }
+        }else{
+            Toast.makeText(PostActivity.this, "this person doesn't have a number!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if(requestCode==1){
+            if(grantResults.length>0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                makeCall();
+            }
+            else{
+                Toast.makeText(PostActivity.this, "Permission denied", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     @Override

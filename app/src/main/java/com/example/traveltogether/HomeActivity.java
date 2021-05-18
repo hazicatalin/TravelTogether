@@ -45,7 +45,6 @@ public class HomeActivity extends AppCompatActivity {
     int image = R.drawable.im_travel;
     ArrayList <Post> posts2 = new ArrayList <Post>();
     Toolbar toolbar;
-    private FirebaseDatabase database;
     private DatabaseReference reference;
 
 
@@ -55,8 +54,10 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
 
         reference = FirebaseDatabase.getInstance().getReference().child("Trips");
+
         readTrips();
-        listView = findViewById(R.id.traels_list);
+
+        listView = findViewById(R.id.travels_list);
         toolbar = findViewById(R.id.top_bar);
         toolbar.setTitle("");
         setSupportActionBar(toolbar);

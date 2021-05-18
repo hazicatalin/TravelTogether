@@ -45,7 +45,7 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
     String str_start, str_dest, str_desc, str_date, userId;
     RadioGroup radioGroup;
     RadioButton radioButton;
-    int radioButtonID;
+    int radioButtonId;
     private Button addDate, create;
 
     private FirebaseUser user;
@@ -144,7 +144,8 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
         str_desc = description.getText().toString().trim();
         reff = FirebaseDatabase.getInstance().getReference("Trips");
         String tripId = reff.push().getKey();
-        if (radioGroup.getCheckedRadioButtonId() == -1)
+        radioButtonId = radioGroup.getCheckedRadioButtonId();
+        if (radioButtonId == -1)
         {
             radioButton = findViewById(R.id.hike);
             radioButton.setError("Select a travel type!");
@@ -171,22 +172,21 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
             description.requestFocus();
             return;
         }
-        if(radioButtonID == findViewById(R.id.car).getId()) {
+        if(radioButtonId == findViewById(R.id.car).getId()) {
             type = "car";
         }
-        if(radioButtonID == findViewById(R.id.motorbike).getId()) {
+        if(radioButtonId == findViewById(R.id.motorbike).getId()) {
             type = "motorbike";
         }
-        if(radioButtonID == findViewById(R.id.bike).getId()) {
+        if(radioButtonId == findViewById(R.id.bike).getId()) {
             type = "bike";
         }
-        if(radioButtonID == findViewById(R.id.electric_scooter).getId()) {
+        if(radioButtonId == findViewById(R.id.electric_scooter).getId()) {
             type = "electric scooter";
         }
-        if(radioButtonID == findViewById(R.id.hike).getId()) {
+        if(radioButtonId == findViewById(R.id.hike).getId()) {
             type = "hike";
         }
-
         Post post = new Post(str_dest,str_start, str_desc, userId, type, str_date);
         radioGroup.clearCheck();
         description.setText("");
@@ -241,7 +241,7 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
         str_dest = preferences.getString("dest", null);
         str_desc = preferences.getString("desc", null);
         str_date = preferences.getString("date", null);
-        radioButtonID = preferences.getInt("radioButton", -1);
+        radioButtonId = preferences.getInt("radioButton", -1);
         if(ok_start==1) {
             start.setText(str_start);
         }else ok_start = 1;
@@ -250,8 +250,8 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
             destination.setText(str_dest);
         }else ok_dest = 1;
         dateText.setText(str_date);
-        if(radioButtonID !=-1) {
-            radioButton = (RadioButton) findViewById(radioButtonID);
+        if(radioButtonId !=-1) {
+            radioButton = (RadioButton) findViewById(radioButtonId);
             radioButton.setChecked(true);
         }
     }
@@ -266,12 +266,12 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
             str_start = start.getText().toString().trim();
             str_dest = destination.getText().toString().trim();
             str_desc = description.getText().toString().trim();
-            radioButtonID = radioGroup.getCheckedRadioButtonId();
+            radioButtonId = radioGroup.getCheckedRadioButtonId();
             editor.putString("start", str_start);
             editor.putString("dest", str_dest);
             editor.putString("desc", str_desc);
             editor.putString("date", str_date);
-            editor.putInt("radioButton", radioButtonID);
+            editor.putInt("radioButton", radioButtonId);
             editor.apply();
         }
     }

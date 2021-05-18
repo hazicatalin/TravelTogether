@@ -9,7 +9,7 @@
         layout="@layout/top_bar"/>
 
     <ListView
-        android:id="@+id/traels_list"
+        android:id="@+id/travels_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="60dp"
