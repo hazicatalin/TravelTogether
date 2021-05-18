@@ -31,6 +31,8 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -141,6 +143,7 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
         str_dest = destination.getText().toString().trim();
         str_desc = description.getText().toString().trim();
         reff = FirebaseDatabase.getInstance().getReference("Trips");
+        String tripId = reff.push().getKey();
         if (radioGroup.getCheckedRadioButtonId() == -1)
         {
             radioButton = findViewById(R.id.hike);
@@ -198,9 +201,11 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
         hashMap.put("creatorId", post.get_creator_id());
         hashMap.put("travelType", post.get_travel_type());
         hashMap.put("date", post.get_date());
+        ArrayList <String> users = new ArrayList<String>();
+        users.add(userId);
+        hashMap.put("participants", users);
 
-
-        reff.push().setValue(hashMap);
+        reff.child(tripId).setValue(hashMap);
         Toast.makeText(AddTripActivity.this, "Trip created successfully!", Toast.LENGTH_SHORT).show();
         SharedPreferences preferences = getSharedPreferences("add", MODE_PRIVATE);
         preferences.edit().clear().commit();

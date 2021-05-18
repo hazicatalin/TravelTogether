@@ -41,8 +41,4 @@ public class Post implements Serializable {
     public String get_date(){
         return date;
     }
-
-    public ArrayList<String> get_participants(){
-        return new ArrayList<String>();
-    }
 }

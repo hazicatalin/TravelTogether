@@ -41,8 +41,7 @@ public class HomeActivity extends AppCompatActivity {
 
     ListView listView;
     ArrayList <Post> posts = new ArrayList <Post>();
-    //String titles[] = {"transfagarasan", "mare", "Brasov", "Delta Dunarii", "Straja", "Bucuresti"};
-    //String dates[] = {"15.iunie.2021", "22.august.2021", "1.mai.2021", "19.septembrie.2021", "5.ianuarie.2022", "15.mai.2021"};
+    ArrayList<String> keys = new ArrayList<String>();
     int image = R.drawable.im_travel;
     ArrayList <Post> posts2 = new ArrayList <Post>();
     Toolbar toolbar;
@@ -55,6 +54,7 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        reference = FirebaseDatabase.getInstance().getReference().child("Trips");
         readTrips();
         listView = findViewById(R.id.traels_list);
         toolbar = findViewById(R.id.top_bar);
@@ -100,6 +100,7 @@ public class HomeActivity extends AppCompatActivity {
                 Toast.makeText(HomeActivity.this, posts.get(position).get_destination(), Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(getBaseContext(), PostActivity.class);
                 intent.putExtra("post", (Serializable) posts.get(position));
+                intent.putExtra("postKey", keys.get(position));
                 startActivity(intent);
                 Log.v("itemclick: ", posts.get(position).get_destination());
             }
@@ -107,18 +108,16 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     public void readTrips(){
-        reference = FirebaseDatabase.getInstance().getReference().child("Trips");
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for(DataSnapshot dataSnapshot: snapshot.getChildren()){
                     Post post = dataSnapshot.getValue(Post.class);
+                    keys.add(dataSnapshot.getKey());
                     posts.add(post);
-                    Log.d("array", post.get_destination());
-                    Log.d("array", String.valueOf(posts.size()));
                 }
-                Log.d("size", String.valueOf(posts.size()));
                 Collections.reverse(posts);
+                Collections.reverse(keys);
                 MyAdapter adapter = new MyAdapter(HomeActivity.this, posts);
                 listView.setAdapter(adapter);
             }
