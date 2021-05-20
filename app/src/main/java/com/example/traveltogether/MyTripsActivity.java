@@ -1,23 +1,70 @@
 package com.example.traveltogether;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.Toolbar;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class MyTripsActivity extends AppCompatActivity {
+
+    ListView listView;
+    ArrayList<Post> posts = new ArrayList <Post>();
+    ArrayList<String> keys = new ArrayList<String>();
+    String userId;
+    int image = R.drawable.im_travel;
+    ArrayList <Post> posts2 = new ArrayList <Post>();
+    Toolbar toolbar;
+    private DatabaseReference reference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_trips);
 
+        reference = FirebaseDatabase.getInstance().getReference();
+
+        readTrips();
+
+        listView = findViewById(R.id.travels_list);
+        toolbar = findViewById(R.id.top_bar);
+        toolbar.setTitle("");
+        toolbar.setBackgroundColor(Color.parseColor("#01DFD7"));
+        setSupportActionBar(toolbar);
+
+        userId= FirebaseAuth.getInstance().getCurrentUser().getUid();
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setSelectedItemId(R.id.my_trips);
 
@@ -47,6 +94,175 @@ public class MyTripsActivity extends AppCompatActivity {
                 return false;
             }
         });
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Toast.makeText(MyTripsActivity.this, posts.get(position).get_destination(), Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getBaseContext(), PostActivity.class);
+                intent.putExtra("post", (Serializable) posts.get(position));
+                intent.putExtra("postKey", keys.get(position));
+                startActivity(intent);
+                Log.v("itemclick: ", posts.get(position).get_destination());
+            }
+        });
+    }
+
+    public void readTrips(){
+        reference.child("Trips").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for(DataSnapshot dataSnapshot: snapshot.getChildren()){
+                    Post post = dataSnapshot.getValue(Post.class);
+                    if(post.get_creator_id().equals(userId)) {
+                        keys.add(dataSnapshot.getKey());
+                        posts.add(post);
+                    }else{
+                        for(DataSnapshot dataSnapshot1: dataSnapshot.child("participants").getChildren()){
+                            String id = dataSnapshot1.getValue(String.class);
+                            if(userId==id){
+                                keys.add(dataSnapshot.getKey());
+                                posts.add(post);
+
+                            }
+                        }
+
+
+                    }
+                }
+                Collections.reverse(posts);
+                Collections.reverse(keys);
+                MyTripsActivity.MyAdapter adapter = new MyAdapter(MyTripsActivity.this, posts);
+                listView.setAdapter(adapter);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.top_navigation_menu, menu);
+
+        MenuItem.OnActionExpandListener onActionExpandListener = new MenuItem.OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem item) {
+                Toast.makeText(MyTripsActivity.this, "Search is expanded", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem item) {
+                Toast.makeText(MyTripsActivity.this, "Search is collapse", Toast.LENGTH_SHORT).show();
+                Collections.reverse(posts2);
+                MyTripsActivity.MyAdapter adapter2 = new MyAdapter(MyTripsActivity.this, posts2);
+                listView.setAdapter(adapter2);
+                return true;
+            }
+        };
+
+        menu.findItem(R.id.search).setOnActionExpandListener(onActionExpandListener);
+        SearchView searchView=(SearchView) menu.findItem(R.id.search).getActionView();
+        searchView.setQueryHint("Search by destination...");
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                if(newText.isEmpty()) {
+                    posts2.clear();
+                    for (int i = 0; i < posts.size(); i++) {
+                        posts2.add(posts.get(i));
+                    }
+                    MyTripsActivity.MyAdapter adapter2 = new MyAdapter(MyTripsActivity.this, posts);
+                    listView.setAdapter(adapter2);
+                }
+                else{
+                    posts2.clear();
+                    for (int i = 0; i < posts.size(); i++) {
+                        if (posts.get(i).get_description().toLowerCase().contains(newText.toLowerCase())) {
+                            posts2.add(posts.get(i));
+                            Log.v("nt", newText);
+                        }
+                    }
+                    Collections.reverse(posts2);
+                    MyTripsActivity.MyAdapter adapter2 = new MyAdapter(MyTripsActivity.this, posts2);
+                    listView.setAdapter(adapter2);
+                }
+                return false;
+            }
+        });
+        return true;
+    }
+
+    class MyAdapter extends ArrayAdapter<Post> {
+        Context context;
+        List<Post> rPost;
+        int rImage;
+
+        MyAdapter (Context c, ArrayList<Post> post){
+            super(c, R.layout.travel, R.id.travel_title, post);
+            this.context=c;
+            this.rPost=post;
+            this.rImage=image;
+        }
+
+        @NonNull
+        @Override
+        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+            LayoutInflater layoutInflater = (LayoutInflater)getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View travel = layoutInflater.inflate(R.layout.travel, parent, false);
+            TextView mytitle = travel.findViewById(R.id.travel_title);
+            TextView mydate = travel.findViewById(R.id.travel_date);
+            TextView myway = travel.findViewById(R.id.travel_by);
+            TextView mystart = travel.findViewById(R.id.travel_start);
+            TextView myowner = travel.findViewById(R.id.travel_owner);
+            ImageView myimage = travel.findViewById(R.id.image);
+
+            reference = FirebaseDatabase.getInstance().getReference("Users");
+
+            reference.child(rPost.get(position).get_creator_id()).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    User userProfile = snapshot.getValue(User.class);
+                    if(userProfile!=null){
+                        myowner.setText(userProfile.name);
+
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+
+
+
+            if(rPost.get(position).get_destination().length()>20){
+                mytitle.setText(rPost.get(position).get_destination().substring(0,20)+"...");
+            }
+            else {
+                mytitle.setText(rPost.get(position).get_destination());
+            }
+            mydate.setText(rPost.get(position).get_date());
+            myway.setText(rPost.get(position).get_travel_type());
+            if(rPost.get(position).get_start_location().length()>15){
+                mystart.setText(rPost.get(position).get_start_location().substring(0,15)+"...");
+            }
+            else {
+                mystart.setText(rPost.get(position).get_start_location());
+            }
+            myimage.setImageResource(rImage);
+            return travel;
+        }
     }
 
     @Override

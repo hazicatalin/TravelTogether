@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ProfileActivity">
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
-
+        android:orientation="vertical"
+        android:id="@+id/ll">
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="200dp">
+            android:layout_height="wrap_content">
 
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/profile_image"
-                android:layout_width="150dp"
-                android:layout_height="150dp"
-                android:layout_marginTop="20dp"
+                android:layout_width="140dp"
+                android:layout_height="140dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
                 android:layout_gravity="center"
                 android:src="@drawable/profile"
                 app:civ_border_width="1dp"
@@ -32,8 +32,9 @@
                 android:clickable="true"
                 app:srcCompat="@drawable/ic_message"
                 tools:ignore="VectorDrawableCompat"
-                android:layout_gravity="right|center"
+                android:layout_gravity="right|center_vertical"
                 android:layout_marginRight="10dp"
+                android:layout_marginBottom="10dp"
                 android:backgroundTint="@color/blue_1"/>
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -64,38 +65,50 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:textColor="@color/black"
-            android:textStyle="bold"
-            android:layout_marginLeft="10dp"
-            android:text="Travels: "
-            android:textSize="30dp"/>
-
-        <ListView
-            android:id="@+id/travels_list"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="20dp"
             android:textColor="@color/black"
             android:textStyle="bold"
             android:text="Description: "
             android:textSize="30dp"/>
-        <TextView
-            android:id="@+id/description"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:textStyle="italic"
-            android:textColor="@color/black"
-            android:textSize="20dp"/>
 
     </LinearLayout>
 
-</ScrollView>
+    <ScrollView
+        android:id="@+id/sw"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:fillViewport="true"
+        android:layout_below="@+id/ll">
+            <TextView
+                android:id="@+id/description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:textStyle="italic"
+                android:textColor="@color/black"
+                android:textSize="20dp"/>
+
+    </ScrollView>
+
+    <TextView
+        android:id="@+id/tw"
+        android:layout_below="@+id/sw"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:layout_marginLeft="10dp"
+        android:text="Travels: "
+        android:textSize="30dp"/>
+
+    <ListView
+        android:id="@+id/travels_list"
+        android:layout_below="@+id/tw"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:nestedScrollingEnabled="true"/>
+</RelativeLayout>

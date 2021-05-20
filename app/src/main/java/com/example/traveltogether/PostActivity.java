@@ -17,9 +17,13 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,12 +51,15 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class PostActivity extends AppCompatActivity {
 
-    TextView title, date, name, description, nr_participants;
+    TextView title, date, name, description;
     String titleStr, dateStr, userStr, descriptionStr, key, userId, phoneNumber;
+    ArrayList<String> ids = new ArrayList<String>();
+    ArrayList<String> idKeys = new ArrayList<String>();
     Post post;
     CircleImageView profile;
     FloatingActionButton messageBtn, callBtn;
-    Button joinBtn;
+    ImageButton editBtn;
+    Button joinBtn, nr_participants;
 
     private FirebaseUser user;
     private DatabaseReference reference;
@@ -78,7 +85,8 @@ public class PostActivity extends AppCompatActivity {
         messageBtn = findViewById(R.id.message);
         joinBtn = findViewById(R.id.join);
         callBtn = findViewById(R.id.call);
-        nr_participants = findViewById(R.id.nr_participanti);
+        editBtn = findViewById(R.id.edit_description);
+        nr_participants = findViewById(R.id.nr_participants);
 
         key = getIntent().getStringExtra("postKey");
 
@@ -88,91 +96,155 @@ public class PostActivity extends AppCompatActivity {
         profile = findViewById(R.id.profile_image);
 
 
-        if (userStr.equals(userId)) {
-            messageBtn.setVisibility(View.INVISIBLE);
-            callBtn.setVisibility(View.INVISIBLE);
-            joinBtn.setBackgroundColor(Color.RED);
-            joinBtn.setTextColor(Color.WHITE);
-            joinBtn.setText("Delete");
-            reference.child("Trips").child(key).child("participants").addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    int counter = 0;
-                    for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                        counter = counter + 1;
-                    }
-                    nr_participants.setText(String.valueOf(counter));
+        reference.child("Trips").child(key).child("participants").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                ids.clear();
+                idKeys.clear();
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                    String id = dataSnapshot.getValue(String.class);
+                    ids.add(id);
+                    idKeys.add(dataSnapshot.getKey());
                 }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-
-                }
-            });
-            joinBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(PostActivity.this);
-                    builder.setTitle("Delete Trip");
-                    builder.setMessage("Are you sure you want to delete this trip?");
-                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                nr_participants.setText(String.valueOf(ids.size()));
+                if (userStr.equals(userId)) {
+                    messageBtn.setVisibility(View.INVISIBLE);
+                    callBtn.setVisibility(View.INVISIBLE);
+                    joinBtn.setBackgroundColor(Color.BLACK);
+                    joinBtn.setTextColor(Color.WHITE);
+                    joinBtn.setText("Delete");
+                    editBtn.setOnClickListener(new View.OnClickListener() {
                         @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
-                        }
-                    });
-                    builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            reference.child("Trips").child(key).removeValue();
-                            startActivity(new Intent(getApplicationContext(), HomeActivity.class));
-
-                        }
-                    });
-                    AlertDialog alertDialog = builder.create();
-                    alertDialog.show();
-                }
-            });
-        } else {
-            reference.child("Trips").child(key).child("participants").addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    int counter = 0, ok = 0;
-                    String idKey = new String();
-                    for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                        String id = dataSnapshot.getValue(String.class);
-                        if (id.equals(userId)) {
-                            joinBtn.setBackgroundColor(Color.RED);
-                            joinBtn.setTextColor(Color.WHITE);
-                            idKey = dataSnapshot.getKey();
-                            ok = 1;
-                        }
-                        counter = counter + 1;
-                        nr_participants.setText(String.valueOf(counter));
-
-                        int finalOk = ok;
-                        String finalIdKey = idKey;
-                        joinBtn.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                if (finalOk == 0) {
-                                    reference.child("Trips").child(key).child("participants").push().setValue(userId);
-                                } else {
-                                    reference.child("Trips").child(key).child("participants").child(finalIdKey).removeValue();
-                                    joinBtn.setBackgroundColor(Color.parseColor("#01DFD7"));
-                                    joinBtn.setTextColor(Color.BLACK);
+                        public void onClick(View v) {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(PostActivity.this);
+                            builder.setTitle("Edit trip description");
+                            final EditText et = new EditText(PostActivity.this);
+                            et.setInputType(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+                            builder.setView(et);
+                            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.cancel();
                                 }
+                            });
+                            builder.setPositiveButton("Edit", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    description.setText(et.getText().toString());
+                                    reference.child("Trips").child(key). child("description").setValue(et.getText().toString());
+                                    Toast.makeText(PostActivity.this, "Edit", Toast.LENGTH_SHORT).show();}
+                            });
+                            AlertDialog alertDialog = builder.create();
+                            alertDialog.show();
+                        }
+                    });
+                    joinBtn.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(PostActivity.this);
+                            builder.setTitle("Delete Trip");
+                            builder.setMessage("Are you sure you want to delete this trip?");
+                            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.cancel();
+                                }
+                            });
+                            builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    reference.child("Trips").child(key).removeValue();
+                                    startActivity(new Intent(getApplicationContext(), HomeActivity.class));
+
+                                }
+                            });
+                            AlertDialog alertDialog = builder.create();
+                            alertDialog.show();
+                        }
+                    });
+                } else {
+                    int index=-1;
+                    editBtn.setVisibility(View.INVISIBLE);
+                    if(ids.contains(userId)){
+                        index = ids.indexOf(userId);
+                        joinBtn.setBackgroundColor(Color.RED);
+                        joinBtn.setTextColor(Color.WHITE);
+                    }
+                    int finalIndex = index;
+                    joinBtn.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (finalIndex == -1) {
+                                reference.child("Trips").child(key).child("participants").push().setValue(userId);
+                                nr_participants.setText(String.valueOf(ids.size()));
+                                joinBtn.setBackgroundColor(Color.RED);
+                                joinBtn.setTextColor(Color.WHITE);
+                            } else {
+                                reference.child("Trips").child(key).child("participants").child(idKeys.get(finalIndex)).removeValue();
+                                nr_participants.setText(String.valueOf(ids.size()));
+                                joinBtn.setBackgroundColor(Color.parseColor("#01DFD7"));
+                                joinBtn.setTextColor(Color.BLACK);
+                            }
+                        }
+                    });
+                }
+                nr_participants.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        ArrayList<String> users = new ArrayList<String>();
+                        ArrayList<String> uids = new ArrayList<String>();
+                        reference.child("Users").addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                users.clear();
+                                uids.clear();
+                                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                                    User user = dataSnapshot.getValue(User.class);
+                                    if(ids.contains(dataSnapshot.getKey())){
+                                        users.add(user.get_name());
+                                        uids.add(dataSnapshot.getKey());
+                                    }
+                                }
+
+                                AlertDialog.Builder builder = new AlertDialog.Builder(PostActivity.this);
+                                builder.setTitle("Participants");
+                                ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(PostActivity.this,
+                                        android.R.layout.simple_dropdown_item_1line, users);
+                                builder.setAdapter(dataAdapter, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int position) {
+                                        Log.d("posasd", uids.get(position));
+                                        Intent intent;
+                                        if(uids.get(position).equals(userId)){
+                                            intent = new Intent(getApplicationContext(), MyProfileActivity.class);
+                                        }
+                                        else {
+                                            intent = new Intent(getApplicationContext(), ProfileActivity.class);
+                                            intent.putExtra("userId", uids.get(position));
+                                        }
+                                        startActivity(intent);
+                                    }
+                                });
+                                AlertDialog dialog = builder.create();
+                                dialog.show();
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+
                             }
                         });
                     }
-                }
+                });
+            }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
 
-                }
-            });
-        }
+            }
+        });
+
+
 
         StorageReference storageReference = FirebaseStorage.getInstance().getReference();
         try {
@@ -228,8 +300,6 @@ public class PostActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent;
-                Log.d("posts", userStr);
-                Log.d("posts", userId);
                 if(userId.equals(userStr)) {
                     intent = new Intent(getApplicationContext(), MyProfileActivity.class);
                 }

@@ -103,15 +103,26 @@
             android:textColor="@color/black"
             android:textSize="20dp"/>
 
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="20dp"
-            android:text="Description: "
-            android:textColor="@color/black"
-            android:textSize="25dp"
-            android:textStyle="italic"/>
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="Trip description: "
+                android:textColor="@color/black"
+                android:textSize="25dp"
+                android:textStyle="italic"/>
+
+            <ImageButton
+                android:id="@+id/edit_description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:background="@drawable/ic_edit" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/descriere"
@@ -132,13 +143,14 @@
             android:textSize="25dp"
             android:textStyle="italic"/>
 
-        <TextView
-            android:id="@+id/nr_participanti"
-            android:layout_width="match_parent"
+        <Button
+            android:id="@+id/nr_participants"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
+            android:layout_gravity="center_horizontal"
             android:text="nr. Participanti"
-            android:textColor="@color/black"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/black"
             android:textSize="20dp"/>
 
         <LinearLayout

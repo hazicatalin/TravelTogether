@@ -9,6 +9,7 @@ import androidx.appcompat.widget.Toolbar;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
@@ -60,6 +61,7 @@ public class HomeActivity extends AppCompatActivity {
         listView = findViewById(R.id.travels_list);
         toolbar = findViewById(R.id.top_bar);
         toolbar.setTitle("");
+        toolbar.setBackgroundColor(Color.parseColor("#01DFD7"));
         setSupportActionBar(toolbar);
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
@@ -163,10 +165,18 @@ public class HomeActivity extends AppCompatActivity {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                if(!newText.isEmpty()) {
+                if(newText.isEmpty()) {
                     posts2.clear();
                     for (int i = 0; i < posts.size(); i++) {
-                        if (posts.get(i).get_description().contains(newText) && !newText.isEmpty()) {
+                        posts2.add(posts.get(i));
+                    }
+                    MyAdapter adapter2 = new MyAdapter(HomeActivity.this, posts);
+                    listView.setAdapter(adapter2);
+                }
+                else{
+                    posts2.clear();
+                    for (int i = 0; i < posts.size(); i++) {
+                        if (posts.get(i).get_description().toLowerCase().contains(newText.toLowerCase())) {
                             posts2.add(posts.get(i));
                             Log.v("nt", newText);
                         }

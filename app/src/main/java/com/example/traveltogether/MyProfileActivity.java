@@ -177,7 +177,7 @@ public class MyProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(MyProfileActivity.this);
-                builder.setTitle("Edit Name");
+                builder.setTitle("Edit your name");
                 final EditText et = new EditText(MyProfileActivity.this);
                 et.setInputType(InputType.TYPE_CLASS_TEXT);
                 builder.setView(et);
@@ -203,7 +203,7 @@ public class MyProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(MyProfileActivity.this);
-                builder.setTitle("Edit Name");
+                builder.setTitle("Edit phone number");
                 final EditText et = new EditText(MyProfileActivity.this);
                 et.setInputType(InputType.TYPE_CLASS_PHONE);
                 builder.setView(et);
@@ -229,9 +229,9 @@ public class MyProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(MyProfileActivity.this);
-                builder.setTitle("Edit Name");
+                builder.setTitle("Edit your description");
                 final EditText et = new EditText(MyProfileActivity.this);
-                et.setInputType(InputType.TYPE_CLASS_TEXT);
+                et.setInputType(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_FLAG_MULTI_LINE);
                 builder.setView(et);
                 builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override

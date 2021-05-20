@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".MyProfileActivity">
 
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -33,6 +34,17 @@
             app:civ_border_width="1dp"
             app:civ_border_color="#FF000000"/>
 
+        <Button
+            android:id="@+id/log_out"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center|bottom"
+            android:text="Log out"
+            android:textSize="15dp"
+            android:backgroundTint="@color/black"
+            android:textColor="@color/white"
+            android:textStyle="bold"/>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -43,7 +55,8 @@
                 android:layout_marginTop="20dp"
                 android:text="Name: "
                 android:textColor="@color/black"
-                android:textSize="20dp"/>
+                android:textSize="25dp"
+                android:textStyle="italic"/>
 
             <ImageButton
                 android:id="@+id/edit_name"
@@ -71,7 +84,8 @@
                 android:layout_marginTop="20dp"
                 android:textColor="@color/black"
                 android:text="Phone number: "
-                android:textSize="20dp"/>
+                android:textSize="25dp"
+                android:textStyle="italic"/>
 
             <ImageButton
                 android:id="@+id/edit_phone"
@@ -99,7 +113,8 @@
                 android:layout_marginTop="20dp"
                 android:textColor="@color/black"
                 android:text="Your description: "
-                android:textSize="20dp"/>
+                android:textSize="25dp"
+                android:textStyle="italic"/>
 
             <ImageButton
                 android:id="@+id/edit_description"
@@ -109,28 +124,26 @@
                 android:background="@drawable/ic_edit" />
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/description"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginRight="20dp"
-            android:textColor="@color/black"
-            android:textSize="15dp" />
-
-        <Button
-            android:id="@+id/log_out"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center|bottom"
-            android:text="Log out"
-            android:textSize="15dp"
-            android:backgroundTint="@color/black"
-            android:textColor="@color/white"
-            android:textStyle="bold"/>
+        <ScrollView
+            android:id="@+id/sw"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:fillViewport="true"
+            android:layout_below="@+id/ll">
+            <TextView
+                android:id="@+id/description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="20dp"
+                android:textColor="@color/black"
+                android:textSize="15dp" />
+        </ScrollView>
 
     </LinearLayout>
+
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"

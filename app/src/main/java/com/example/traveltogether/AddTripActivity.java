@@ -187,6 +187,8 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
         if(radioButtonId == findViewById(R.id.hike).getId()) {
             type = "hike";
         }
+        List <String> users = new ArrayList<String>();
+        users.add(userId);
         Post post = new Post(str_dest,str_start, str_desc, userId, type, str_date);
         radioGroup.clearCheck();
         description.setText("");
@@ -201,8 +203,6 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
         hashMap.put("creatorId", post.get_creator_id());
         hashMap.put("travelType", post.get_travel_type());
         hashMap.put("date", post.get_date());
-        ArrayList <String> users = new ArrayList<String>();
-        users.add(userId);
         hashMap.put("participants", users);
 
         reff.child(tripId).setValue(hashMap);
@@ -298,12 +298,13 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
                 Calendar.getInstance().get(Calendar.MONTH),
                 Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
         );
+        datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis());
         datePickerDialog.show();
     }
 
     @Override
     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-        str_date = "date: "+year+"/"+month+"/"+dayOfMonth;
+        str_date = "date: "+year+"/"+(month+1)+"/"+dayOfMonth;
         dateText.setText(str_date);
     }
 
