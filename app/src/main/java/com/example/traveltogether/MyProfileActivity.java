@@ -148,9 +148,7 @@ public class MyProfileActivity extends AppCompatActivity {
                 builder.setPositiveButton("Choose from gallery", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Intent pickPhoto = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                        startActivityForResult(pickPhoto , 101);
-
+                        uploadPhoto();
                     }
                 });
                 builder.setNeutralButton("Take a photo", new DialogInterface.OnClickListener() {
@@ -261,10 +259,20 @@ public class MyProfileActivity extends AppCompatActivity {
         });
     }
 
+    private void uploadPhoto(){
+        if (ContextCompat.checkSelfPermission(MyProfileActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(MyProfileActivity.this, new String[] {Manifest.permission.CAMERA}, 1);
+        }
+        else {
+            Intent pickPhoto = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            startActivityForResult(pickPhoto, 101);
+        }
+    }
+
     private void getImage(){
         try {
             final File file = File.createTempFile(userId, "jpg");
-            storageReference.child("images/" + userId).getFile(file).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+            storageReference.child("images/"+userId).getFile(file).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
                     Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
@@ -278,6 +286,18 @@ public class MyProfileActivity extends AppCompatActivity {
             });
         }catch (IOException ex){
 
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if(requestCode==1){
+            if(grantResults.length>0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                uploadPhoto();
+            }
+            else{
+                Toast.makeText(MyProfileActivity.this, "Permission denied", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -332,11 +352,5 @@ public class MyProfileActivity extends AppCompatActivity {
         SharedPreferences preferences = getSharedPreferences("add", MODE_PRIVATE);
         preferences.edit().clear().commit();
         Log.i("logx", "onDestroy");
-    }
-
-    @Override
-    public void onBackPressed() {
-        startActivity(new Intent(getApplicationContext(), HomeActivity.class));
-        overridePendingTransition(0,0);
     }
 }

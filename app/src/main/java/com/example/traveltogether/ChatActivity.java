@@ -27,7 +27,7 @@ public class ChatActivity extends AppCompatActivity {
 
     ImageButton sendBtn;
     EditText messageEt;
-    String messageStr, userIdStr;
+    String userIdStr;
     TextView receiverNameTw;
     FirebaseUser fUser;
 
@@ -106,7 +106,7 @@ public class ChatActivity extends AppCompatActivity {
                         message.getReceiver().equals(userId)&& message.getSender().equals(myId)){
                         messages.add(message);
                     }
-                    messageAdapter = new MessageAdapter(ChatActivity.this, messages);
+                    messageAdapter = new MessageAdapter(ChatActivity.this, messages, userIdStr);
                     recyclerView.setAdapter(messageAdapter);
                 }
             }

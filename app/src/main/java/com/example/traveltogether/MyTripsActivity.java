@@ -22,6 +22,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,16 +39,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class MyTripsActivity extends AppCompatActivity {
+public class MyTripsActivity extends AppCompatActivity{
 
     ListView listView;
     ArrayList<Post> posts = new ArrayList <Post>();
     ArrayList<String> keys = new ArrayList<String>();
     String userId;
     int image = R.drawable.im_travel;
+    ArrayList <Post> posts1 = new ArrayList <Post>();
     ArrayList <Post> posts2 = new ArrayList <Post>();
+    ArrayList <Post> posts3 = new ArrayList <Post>();
     Toolbar toolbar;
     private DatabaseReference reference;
+    Spinner spinner, spinner1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,16 +59,86 @@ public class MyTripsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_my_trips);
 
         reference = FirebaseDatabase.getInstance().getReference();
-
         readTrips();
 
+        userId= FirebaseAuth.getInstance().getCurrentUser().getUid();
         listView = findViewById(R.id.travels_list);
         toolbar = findViewById(R.id.top_bar);
         toolbar.setTitle("");
         toolbar.setBackgroundColor(Color.parseColor("#01DFD7"));
         setSupportActionBar(toolbar);
+        spinner = findViewById(R.id.spinner2);
+        spinner1 = findViewById(R.id.spinner1);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(MyTripsActivity.this, R.array.travelTypes, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter<CharSequence> adapter1 = ArrayAdapter.createFromResource(MyTripsActivity.this, R.array.myTrips, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+        spinner1.setAdapter(adapter1);
+        spinner1.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String text = parent.getItemAtPosition(position).toString();
+                if(text.equals("All trips")){
+                    posts1.clear();
+                    posts1.addAll(posts);
+                }
+                else{
+                    posts1.clear();
+                    if(text.equals("Posted trips")) {
+                        for (int i = 0; i < posts.size(); i++) {
+                            if (posts.get(i).get_creator_id().equals(userId)) {
+                                posts1.add(posts.get(i));
+                            }
+                        }
+                    }
+                    if(text.equals("Joined trips")) {
+                        for (int i = 0; i < posts.size(); i++) {
+                            if (!posts.get(i).get_creator_id().equals(userId)) {
+                                posts1.add(posts.get(i));
+                            }
+                        }
+                    }
+                }
+                posts2.clear();
+                posts2.addAll(posts3);
+                posts2.retainAll(posts1);
+                MyTripsActivity.MyAdapter adapter2 = new MyAdapter(MyTripsActivity.this, posts2);
+                listView.setAdapter(adapter2);
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
 
-        userId= FirebaseAuth.getInstance().getCurrentUser().getUid();
+            }
+        });
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String text = parent.getItemAtPosition(position).toString();
+                if(text.equals("All travel types")){
+                    posts3.clear();
+                    posts3.addAll(posts);
+                }
+                else{
+                    posts3.clear();
+                    for (int i = 0; i < posts.size(); i++) {
+                        if (posts.get(i).get_travel_type().toLowerCase().equals(text)) {
+                            posts3.add(posts.get(i));
+                        }
+                    }
+                }
+                posts2.clear();
+                posts2.addAll(posts3);
+                posts2.retainAll(posts1);
+                MyTripsActivity.MyAdapter adapter2 = new MyAdapter(MyTripsActivity.this, posts2);
+                listView.setAdapter(adapter2);
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setSelectedItemId(R.id.my_trips);
 
@@ -120,10 +194,9 @@ public class MyTripsActivity extends AppCompatActivity {
                     }else{
                         for(DataSnapshot dataSnapshot1: dataSnapshot.child("participants").getChildren()){
                             String id = dataSnapshot1.getValue(String.class);
-                            if(userId==id){
+                            if(userId.equals(id)){
                                 keys.add(dataSnapshot.getKey());
                                 posts.add(post);
-
                             }
                         }
 
@@ -177,9 +250,9 @@ public class MyTripsActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextChange(String newText) {
                 if(newText.isEmpty()) {
-                    posts2.clear();
-                    for (int i = 0; i < posts.size(); i++) {
-                        posts2.add(posts.get(i));
+                    posts1.clear();
+                    for (int i = 0; i < posts2.size(); i++) {
+                        posts1.add(posts2.get(i));
                     }
                     MyTripsActivity.MyAdapter adapter2 = new MyAdapter(MyTripsActivity.this, posts);
                     listView.setAdapter(adapter2);
@@ -187,13 +260,12 @@ public class MyTripsActivity extends AppCompatActivity {
                 else{
                     posts2.clear();
                     for (int i = 0; i < posts.size(); i++) {
-                        if (posts.get(i).get_description().toLowerCase().contains(newText.toLowerCase())) {
-                            posts2.add(posts.get(i));
+                        if (posts2.get(i).get_description().toLowerCase().contains(newText.toLowerCase())) {
+                            posts1.add(posts2.get(i));
                             Log.v("nt", newText);
                         }
                     }
-                    Collections.reverse(posts2);
-                    MyTripsActivity.MyAdapter adapter2 = new MyAdapter(MyTripsActivity.this, posts2);
+                    MyTripsActivity.MyAdapter adapter2 = new MyAdapter(MyTripsActivity.this, posts1);
                     listView.setAdapter(adapter2);
                 }
                 return false;

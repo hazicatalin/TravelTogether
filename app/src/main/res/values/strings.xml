@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">TravelTogether</string>
+    <string-array name="travelTypes">
+        <item>All travel types</item>
+        <item>car</item>
+        <item>motorbike</item>
+        <item>bike</item>
+        <item>electric scooter</item>
+        <item>hike</item>
+    </string-array>
+    <string-array name="myTrips">
+        <item>All trips</item>
+        <item>Posted trips</item>
+        <item>Joined trips</item>
+    </string-array>
 </resources>

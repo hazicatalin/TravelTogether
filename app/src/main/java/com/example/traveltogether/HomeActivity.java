@@ -19,10 +19,12 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,7 +40,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class HomeActivity extends AppCompatActivity {
+public class HomeActivity extends AppCompatActivity{
 
     ListView listView;
     ArrayList <Post> posts = new ArrayList <Post>();
@@ -47,6 +49,7 @@ public class HomeActivity extends AppCompatActivity {
     ArrayList <Post> posts2 = new ArrayList <Post>();
     Toolbar toolbar;
     private DatabaseReference reference;
+    Spinner spinner;
 
 
     @Override
@@ -55,7 +58,6 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
 
         reference = FirebaseDatabase.getInstance().getReference().child("Trips");
-
         readTrips();
 
         listView = findViewById(R.id.travels_list);
@@ -63,6 +65,35 @@ public class HomeActivity extends AppCompatActivity {
         toolbar.setTitle("");
         toolbar.setBackgroundColor(Color.parseColor("#01DFD7"));
         setSupportActionBar(toolbar);
+        spinner = findViewById(R.id.spinner);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(HomeActivity.this, R.array.travelTypes, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String text = parent.getItemAtPosition(position).toString();
+                if(text.equals("All travel types")){
+                    HomeActivity.MyAdapter adapter2 = new MyAdapter(HomeActivity.this, posts);
+                    listView.setAdapter(adapter2);
+                }
+                else{
+                    posts2.clear();
+                    for (int i = 0; i < posts.size(); i++) {
+                        if (posts.get(i).get_travel_type().toLowerCase().equals(text)) {
+                            posts2.add(posts.get(i));
+                        }
+                    }
+                    Collections.reverse(posts2);
+                    HomeActivity.MyAdapter adapter2 = new MyAdapter(HomeActivity.this, posts2);
+                    listView.setAdapter(adapter2);
+                }
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setSelectedItemId(R.id.home);
@@ -109,8 +140,9 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
     }
-
     public void readTrips(){
+        keys.clear();
+        posts.clear();
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -178,7 +210,6 @@ public class HomeActivity extends AppCompatActivity {
                     for (int i = 0; i < posts.size(); i++) {
                         if (posts.get(i).get_description().toLowerCase().contains(newText.toLowerCase())) {
                             posts2.add(posts.get(i));
-                            Log.v("nt", newText);
                         }
                     }
                     Collections.reverse(posts2);

@@ -47,7 +47,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class ChatsActivity extends AppCompatActivity {
 
     ArrayList<User> users = new ArrayList<User>();
-    FirebaseUser fUser;
     String myId;
     ListView listView;
     ArrayList <String> list = new ArrayList<String>();
@@ -58,8 +57,7 @@ public class ChatsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_chats);
 
         readChats();
-        fUser = FirebaseAuth.getInstance().getCurrentUser();
-        myId = fUser.getUid();
+        myId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         listView = findViewById(R.id.chats_list);
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
@@ -119,9 +117,10 @@ public class ChatsActivity extends AppCompatActivity {
                         else {
                             id = message.getSender();
                         }
-                        if(!list.contains(id)) {
-                            list.add(id);
+                        if(list.contains(id)) {
+                            list.remove(id);
                         }
+                        list.add(id);
                     }
                 }
                 Collections.reverse(list);
@@ -166,9 +165,12 @@ public class ChatsActivity extends AppCompatActivity {
             LayoutInflater layoutInflater = (LayoutInflater)getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View chatsItem = layoutInflater.inflate(R.layout.chats_item, parent, false);
             TextView personName = chatsItem.findViewById(R.id.name);
+            CircleImageView profile_image = chatsItem.findViewById(R.id.profile_image);
+            String id = rList.get(position);
+            Log.d("idasd", id);
 
             DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Users");
-            ref.child(rList.get(position)).addListenerForSingleValueEvent(new ValueEventListener() {
+            ref.child(id).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     User userProfile = snapshot.getValue(User.class);
@@ -181,10 +183,9 @@ public class ChatsActivity extends AppCompatActivity {
                 }
             });
             StorageReference storageReference = FirebaseStorage.getInstance().getReference();
-            CircleImageView profile_image = findViewById(R.id.profile_image);
             try {
-                final File file = File.createTempFile(rList.get(position), "jpg");
-                storageReference.child("images/" + rList.get(position)).getFile(file).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                final File file = File.createTempFile(id, "jpg");
+                storageReference.child("images/"+id).getFile(file).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
                         Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());

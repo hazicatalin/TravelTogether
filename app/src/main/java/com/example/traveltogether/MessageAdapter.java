@@ -36,10 +36,12 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 
     private Context context;
     private List<Message> messages;
+    private String otherUser;
 
-    public MessageAdapter(Context context, List<Message> messages){
+    public MessageAdapter(Context context, List<Message> messages, String otherUser){
         this.context = context;
         this.messages = messages;
+        this.otherUser = otherUser;
     }
 
     @NonNull
@@ -63,8 +65,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         holder.show_message.setText(chat.getMessage());
         StorageReference storageReference = FirebaseStorage.getInstance().getReference();
         try {
-            final File file = File.createTempFile(fUser.getUid(), "jpg");
-            storageReference.child("images/" + fUser.getUid()).getFile(file).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+            final File file = File.createTempFile(otherUser, "jpg");
+            storageReference.child("images/" + otherUser).getFile(file).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
                     Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
