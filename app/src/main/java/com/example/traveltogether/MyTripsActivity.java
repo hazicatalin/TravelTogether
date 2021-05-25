@@ -44,6 +44,7 @@ public class MyTripsActivity extends AppCompatActivity{
     ListView listView;
     ArrayList<Post> posts = new ArrayList <Post>();
     ArrayList<String> keys = new ArrayList<String>();
+    ArrayList<String> keys2 = new ArrayList<String>();
     String userId;
     int image = R.drawable.im_travel;
     ArrayList <Post> posts1 = new ArrayList <Post>();
@@ -103,6 +104,11 @@ public class MyTripsActivity extends AppCompatActivity{
                 posts2.clear();
                 posts2.addAll(posts3);
                 posts2.retainAll(posts1);
+                for (int i = 0; i <posts.size(); i++) {
+                    if(posts2.contains(posts.get(i))){
+                        keys2.add(keys.get(i));
+                    }
+                }
                 MyTripsActivity.MyAdapter adapter2 = new MyAdapter(MyTripsActivity.this, posts2);
                 listView.setAdapter(adapter2);
             }
@@ -130,6 +136,11 @@ public class MyTripsActivity extends AppCompatActivity{
                 posts2.clear();
                 posts2.addAll(posts3);
                 posts2.retainAll(posts1);
+                for (int i = 0; i <posts.size(); i++) {
+                    if(posts2.contains(posts.get(i))){
+                        keys2.add(keys.get(i));
+                    }
+                }
                 MyTripsActivity.MyAdapter adapter2 = new MyAdapter(MyTripsActivity.this, posts2);
                 listView.setAdapter(adapter2);
             }
@@ -172,12 +183,11 @@ public class MyTripsActivity extends AppCompatActivity{
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(MyTripsActivity.this, posts.get(position).get_destination(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(MyTripsActivity.this, posts2.get(position).get_destination(), Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(getBaseContext(), PostActivity.class);
-                intent.putExtra("post", (Serializable) posts.get(position));
-                intent.putExtra("postKey", keys.get(position));
+                intent.putExtra("post", (Serializable) posts2.get(position));
+                intent.putExtra("postKey", keys2.get(position));
                 startActivity(intent);
-                Log.v("itemclick: ", posts.get(position).get_destination());
             }
         });
     }
@@ -205,6 +215,8 @@ public class MyTripsActivity extends AppCompatActivity{
                 }
                 Collections.reverse(posts);
                 Collections.reverse(keys);
+                posts2.addAll(posts);
+                keys2.addAll(keys);
                 MyTripsActivity.MyAdapter adapter = new MyAdapter(MyTripsActivity.this, posts);
                 listView.setAdapter(adapter);
             }
@@ -254,13 +266,13 @@ public class MyTripsActivity extends AppCompatActivity{
                     for (int i = 0; i < posts2.size(); i++) {
                         posts1.add(posts2.get(i));
                     }
-                    MyTripsActivity.MyAdapter adapter2 = new MyAdapter(MyTripsActivity.this, posts);
+                    MyTripsActivity.MyAdapter adapter2 = new MyAdapter(MyTripsActivity.this, posts2);
                     listView.setAdapter(adapter2);
                 }
                 else{
-                    posts2.clear();
+                    posts1.clear();
                     for (int i = 0; i < posts.size(); i++) {
-                        if (posts2.get(i).get_description().toLowerCase().contains(newText.toLowerCase())) {
+                        if (posts2.get(i).get_destination().toLowerCase().contains(newText.toLowerCase())) {
                             posts1.add(posts2.get(i));
                             Log.v("nt", newText);
                         }

@@ -208,7 +208,7 @@ public class HomeActivity extends AppCompatActivity{
                 else{
                     posts2.clear();
                     for (int i = 0; i < posts.size(); i++) {
-                        if (posts.get(i).get_description().toLowerCase().contains(newText.toLowerCase())) {
+                        if (posts.get(i).get_destination().toLowerCase().contains(newText.toLowerCase())) {
                             posts2.add(posts.get(i));
                         }
                     }

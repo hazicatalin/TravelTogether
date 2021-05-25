@@ -155,13 +155,13 @@ public class MyProfileActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
-                        if(ContextCompat.checkSelfPermission(MyProfileActivity.this,
-                                Manifest.permission.CAMERA)!= PackageManager.PERMISSION_GRANTED){
-                            ActivityCompat.requestPermissions(MyProfileActivity.this,
-                                    new String[]{Manifest.permission.CAMERA}, 100);
+                        if (ContextCompat.checkSelfPermission(MyProfileActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                            ActivityCompat.requestPermissions(MyProfileActivity.this, new String[] {Manifest.permission.CAMERA}, 1);
                         }
-                        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                        startActivityForResult(intent, 100);
+                        else {
+                            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                            startActivityForResult(intent, 100);
+                        }
 
                     }
                 });
