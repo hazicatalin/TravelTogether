@@ -35,6 +35,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.io.Serializable;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -116,12 +118,21 @@ public class MyTripsActivity extends AppCompatActivity{
         reference.child("Trips").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                keys.clear();
                 posts.clear();
                 for(DataSnapshot dataSnapshot: snapshot.getChildren()){
                     Post post = dataSnapshot.getValue(Post.class);
                     if(post.get_creator_id().equals(userId)) {
-                        Date d1 = new Date(post.get_date());
-                        Date d2 = new Date();
+                        SimpleDateFormat sdformat = new SimpleDateFormat("yyyy/MM/dd");
+                        Date d1 = null;
+                        Date d2=null;
+                        try {
+                            d1 = sdformat.parse(post.get_date());
+                            d2 = sdformat.parse(sdformat.format(new Date()));
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                        Log.v("dataxx", "The date 2 is: " + sdformat.format(d2));
                         if(d1.compareTo(d2) >= 0) {
                             keys.add(dataSnapshot.getKey());
                             posts.add(post);
@@ -130,8 +141,16 @@ public class MyTripsActivity extends AppCompatActivity{
                         for(DataSnapshot dataSnapshot1: dataSnapshot.child("participants").getChildren()){
                             String id = dataSnapshot1.getValue(String.class);
                             if(userId.equals(id)){
-                                Date d1 = new Date(post.get_date());
-                                Date d2 = new Date();
+                                SimpleDateFormat sdformat = new SimpleDateFormat("yyyy/MM/dd");
+                                Date d1 = null;
+                                Date d2=null;
+                                try {
+                                    d1 = sdformat.parse(post.get_date());
+                                    d2 = sdformat.parse(sdformat.format(new Date()));
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+                                Log.v("dataxx", "The date 2 is: " + sdformat.format(d2));
                                 if(d1.compareTo(d2) >= 0) {
                                     keys.add(dataSnapshot.getKey());
                                     posts.add(post);
