@@ -38,6 +38,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 public class HomeActivity extends AppCompatActivity{
@@ -47,6 +48,8 @@ public class HomeActivity extends AppCompatActivity{
     ArrayList<String> keys = new ArrayList<String>();
     int image = R.drawable.im_travel;
     ArrayList <Post> posts2 = new ArrayList <Post>();
+    ArrayList <Post> posts1 = new ArrayList <Post>();
+    ArrayList<String> keys2 = new ArrayList<String>();
     Toolbar toolbar;
     private DatabaseReference reference;
     Spinner spinner;
@@ -65,35 +68,6 @@ public class HomeActivity extends AppCompatActivity{
         toolbar.setTitle("");
         toolbar.setBackgroundColor(Color.parseColor("#01DFD7"));
         setSupportActionBar(toolbar);
-        spinner = findViewById(R.id.spinner);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(HomeActivity.this, R.array.travelTypes, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String text = parent.getItemAtPosition(position).toString();
-                if(text.equals("All travel types")){
-                    HomeActivity.MyAdapter adapter2 = new MyAdapter(HomeActivity.this, posts);
-                    listView.setAdapter(adapter2);
-                }
-                else{
-                    posts2.clear();
-                    for (int i = 0; i < posts.size(); i++) {
-                        if (posts.get(i).get_travel_type().toLowerCase().equals(text)) {
-                            posts2.add(posts.get(i));
-                        }
-                    }
-                    Collections.reverse(posts2);
-                    HomeActivity.MyAdapter adapter2 = new MyAdapter(HomeActivity.this, posts2);
-                    listView.setAdapter(adapter2);
-                }
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setSelectedItemId(R.id.home);
@@ -136,7 +110,6 @@ public class HomeActivity extends AppCompatActivity{
                 intent.putExtra("post", (Serializable) posts.get(position));
                 intent.putExtra("postKey", keys.get(position));
                 startActivity(intent);
-                Log.v("itemclick: ", posts.get(position).get_destination());
             }
         });
     }
@@ -148,17 +121,53 @@ public class HomeActivity extends AppCompatActivity{
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for(DataSnapshot dataSnapshot: snapshot.getChildren()){
                     Post post = dataSnapshot.getValue(Post.class);
-                    keys.add(dataSnapshot.getKey());
-                    posts.add(post);
+                    Date d1 = new Date(post.get_date());
+                    Date d2 = new Date();
+                    if(d1.compareTo(d2) >= 0) {
+                        keys.add(dataSnapshot.getKey());
+                        posts.add(post);
+                    }
                 }
                 Collections.reverse(posts);
                 Collections.reverse(keys);
-                MyAdapter adapter = new MyAdapter(HomeActivity.this, posts);
-                listView.setAdapter(adapter);
+                posts2.addAll(posts);
+                keys2.addAll(keys);
+                showTrips();
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    public void showTrips(){
+        spinner = findViewById(R.id.spinner);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(HomeActivity.this, R.array.travelTypes, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String text = parent.getItemAtPosition(position).toString();
+                if(text.equals("All travel types")){
+                    HomeActivity.MyAdapter adapter2 = new MyAdapter(HomeActivity.this, posts);
+                    listView.setAdapter(adapter2);
+                }
+                else{
+                    posts2.clear();
+                    for (int i = 0; i < posts.size(); i++) {
+                        if (posts.get(i).get_travel_type().toLowerCase().equals(text)) {
+                            posts2.add(posts.get(i));
+                        }
+                    }
+                    HomeActivity.MyAdapter adapter2 = new MyAdapter(HomeActivity.this, posts2);
+                    listView.setAdapter(adapter2);
+                }
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
 
             }
         });
@@ -179,9 +188,7 @@ public class HomeActivity extends AppCompatActivity{
             @Override
             public boolean onMenuItemActionCollapse(MenuItem item) {
                 Toast.makeText(HomeActivity.this, "Search is collapse", Toast.LENGTH_SHORT).show();
-                Collections.reverse(posts2);
-                MyAdapter adapter2 = new MyAdapter(HomeActivity.this, posts2);
-                listView.setAdapter(adapter2);
+                showTrips();
                 return true;
             }
         };
@@ -198,22 +205,22 @@ public class HomeActivity extends AppCompatActivity{
             @Override
             public boolean onQueryTextChange(String newText) {
                 if(newText.isEmpty()) {
-                    posts2.clear();
-                    for (int i = 0; i < posts.size(); i++) {
-                        posts2.add(posts.get(i));
+                    posts1.clear();
+                    for (int i = 0; i < posts2.size(); i++) {
+                        posts1.add(posts2.get(i));
                     }
-                    MyAdapter adapter2 = new MyAdapter(HomeActivity.this, posts);
+                    HomeActivity.MyAdapter adapter2 = new MyAdapter(HomeActivity.this, posts2);
                     listView.setAdapter(adapter2);
                 }
                 else{
-                    posts2.clear();
-                    for (int i = 0; i < posts.size(); i++) {
-                        if (posts.get(i).get_destination().toLowerCase().contains(newText.toLowerCase())) {
-                            posts2.add(posts.get(i));
+                    posts1.clear();
+                    for (int i = 0; i < posts2.size(); i++) {
+                        if (posts2.get(i).get_destination().toLowerCase().contains(newText.toLowerCase())) {
+                            posts1.add(posts2.get(i));
+                            Log.v("nt", newText);
                         }
                     }
-                    Collections.reverse(posts2);
-                    MyAdapter adapter2 = new MyAdapter(HomeActivity.this, posts2);
+                    HomeActivity.MyAdapter adapter2 = new MyAdapter(HomeActivity.this, posts1);
                     listView.setAdapter(adapter2);
                 }
                 return false;

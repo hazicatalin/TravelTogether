@@ -27,13 +27,23 @@
                 android:textColor="@color/black"
                 android:textSize="40dp" />
 
+            <TextView
+                android:id="@+id/type_tw"
+                style="@android:style/Widget.EditText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:text="Travel type: "
+                android:textSize="20dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="30dp"/>
+
             <RadioGroup
                 android:id="@+id/radio_group"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_gravity="center"
-                android:layout_marginTop="30dp">
+                android:layout_gravity="center">
 
                 <RadioButton
                     android:id="@+id/car"
@@ -61,7 +71,6 @@
 
                 <RadioButton
                     android:id="@+id/hike"
-                    style="@android:style/Widget.EditText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:drawableLeft="@drawable/ic_hiking"/>
@@ -92,7 +101,7 @@
                 android:inputType="text" />
 
             <TextView
-                android:id="@+id/destinatie_tw"
+                android:id="@+id/destination_tw"
                 style="@android:style/Widget.EditText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -103,7 +112,7 @@
                 android:layout_marginTop="30dp"/>
 
             <EditText
-                android:id="@+id/destinatie"
+                android:id="@+id/destination"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:layout_marginLeft="30dp"
@@ -147,7 +156,7 @@
                 android:layout_marginTop="30dp"/>
 
             <EditText
-                android:id="@+id/descriere"
+                android:id="@+id/description"
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
                 android:layout_marginLeft="30dp"

@@ -37,6 +37,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 public class MyTripsActivity extends AppCompatActivity{
@@ -68,6 +69,94 @@ public class MyTripsActivity extends AppCompatActivity{
         toolbar.setTitle("");
         toolbar.setBackgroundColor(Color.parseColor("#01DFD7"));
         setSupportActionBar(toolbar);
+
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setSelectedItemId(R.id.my_trips);
+
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener(){
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem){
+                switch (menuItem.getItemId()){
+                    case R.id.home:
+                        startActivity(new Intent(getApplicationContext(), HomeActivity.class));
+                        overridePendingTransition(0,0);
+                        return true;
+                    case R.id.add_trip:
+                        startActivity(new Intent(getApplicationContext(), AddTripActivity.class));
+                        overridePendingTransition(0,0);
+                        return true;
+                    case R.id.chats:
+                        startActivity(new Intent(getApplicationContext(), ChatsActivity.class));
+                        overridePendingTransition(0,0);
+                        return true;
+                    case R.id.my_profile:
+                        startActivity(new Intent(getApplicationContext(), MyProfileActivity.class));
+                        overridePendingTransition(0,0);
+                        return true;
+                    case R.id.my_trips:
+                        return true;
+                }
+                return false;
+            }
+        });
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Toast.makeText(MyTripsActivity.this, posts2.get(position).get_destination(), Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getBaseContext(), PostActivity.class);
+                intent.putExtra("post", (Serializable) posts2.get(position));
+                intent.putExtra("postKey", keys2.get(position));
+                startActivity(intent);
+            }
+        });
+    }
+
+    public void readTrips(){
+        reference.child("Trips").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                posts.clear();
+                for(DataSnapshot dataSnapshot: snapshot.getChildren()){
+                    Post post = dataSnapshot.getValue(Post.class);
+                    if(post.get_creator_id().equals(userId)) {
+                        Date d1 = new Date(post.get_date());
+                        Date d2 = new Date();
+                        if(d1.compareTo(d2) >= 0) {
+                            keys.add(dataSnapshot.getKey());
+                            posts.add(post);
+                        }
+                    }else{
+                        for(DataSnapshot dataSnapshot1: dataSnapshot.child("participants").getChildren()){
+                            String id = dataSnapshot1.getValue(String.class);
+                            if(userId.equals(id)){
+                                Date d1 = new Date(post.get_date());
+                                Date d2 = new Date();
+                                if(d1.compareTo(d2) >= 0) {
+                                    keys.add(dataSnapshot.getKey());
+                                    posts.add(post);
+                                }
+                            }
+                        }
+
+
+                    }
+                }
+                Collections.reverse(posts);
+                Collections.reverse(keys);
+                posts2.addAll(posts);
+                keys2.addAll(keys);
+                showTrips();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    public void showTrips(){
         spinner = findViewById(R.id.spinner2);
         spinner1 = findViewById(R.id.spinner1);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(MyTripsActivity.this, R.array.travelTypes, android.R.layout.simple_spinner_item);
@@ -150,82 +239,6 @@ public class MyTripsActivity extends AppCompatActivity{
             }
         });
 
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
-        bottomNavigationView.setSelectedItemId(R.id.my_trips);
-
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener(){
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem){
-                switch (menuItem.getItemId()){
-                    case R.id.home:
-                        startActivity(new Intent(getApplicationContext(), HomeActivity.class));
-                        overridePendingTransition(0,0);
-                        return true;
-                    case R.id.add_trip:
-                        startActivity(new Intent(getApplicationContext(), AddTripActivity.class));
-                        overridePendingTransition(0,0);
-                        return true;
-                    case R.id.chats:
-                        startActivity(new Intent(getApplicationContext(), ChatsActivity.class));
-                        overridePendingTransition(0,0);
-                        return true;
-                    case R.id.my_profile:
-                        startActivity(new Intent(getApplicationContext(), MyProfileActivity.class));
-                        overridePendingTransition(0,0);
-                        return true;
-                    case R.id.my_trips:
-                        return true;
-                }
-                return false;
-            }
-        });
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(MyTripsActivity.this, posts2.get(position).get_destination(), Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(getBaseContext(), PostActivity.class);
-                intent.putExtra("post", (Serializable) posts2.get(position));
-                intent.putExtra("postKey", keys2.get(position));
-                startActivity(intent);
-            }
-        });
-    }
-
-    public void readTrips(){
-        reference.child("Trips").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for(DataSnapshot dataSnapshot: snapshot.getChildren()){
-                    Post post = dataSnapshot.getValue(Post.class);
-                    if(post.get_creator_id().equals(userId)) {
-                        keys.add(dataSnapshot.getKey());
-                        posts.add(post);
-                    }else{
-                        for(DataSnapshot dataSnapshot1: dataSnapshot.child("participants").getChildren()){
-                            String id = dataSnapshot1.getValue(String.class);
-                            if(userId.equals(id)){
-                                keys.add(dataSnapshot.getKey());
-                                posts.add(post);
-                            }
-                        }
-
-
-                    }
-                }
-                Collections.reverse(posts);
-                Collections.reverse(keys);
-                posts2.addAll(posts);
-                keys2.addAll(keys);
-                MyTripsActivity.MyAdapter adapter = new MyAdapter(MyTripsActivity.this, posts);
-                listView.setAdapter(adapter);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
     }
 
     @Override
@@ -243,9 +256,7 @@ public class MyTripsActivity extends AppCompatActivity{
             @Override
             public boolean onMenuItemActionCollapse(MenuItem item) {
                 Toast.makeText(MyTripsActivity.this, "Search is collapse", Toast.LENGTH_SHORT).show();
-                Collections.reverse(posts2);
-                MyTripsActivity.MyAdapter adapter2 = new MyAdapter(MyTripsActivity.this, posts2);
-                listView.setAdapter(adapter2);
+                showTrips();
                 return true;
             }
         };
@@ -271,7 +282,7 @@ public class MyTripsActivity extends AppCompatActivity{
                 }
                 else{
                     posts1.clear();
-                    for (int i = 0; i < posts.size(); i++) {
+                    for (int i = 0; i < posts2.size(); i++) {
                         if (posts2.get(i).get_destination().toLowerCase().contains(newText.toLowerCase())) {
                             posts1.add(posts2.get(i));
                             Log.v("nt", newText);

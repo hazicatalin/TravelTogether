@@ -51,8 +51,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class PostActivity extends AppCompatActivity {
 
-    TextView title, date, name, description;
-    String titleStr, dateStr, userStr, descriptionStr, key, userId, phoneNumber;
+    TextView title, start, date, name, description, type;
+    String titleStr, startStr, dateStr, userStr, descriptionStr, key, userId, phoneNumber, typeStr;
     ArrayList<String> ids = new ArrayList<String>();
     ArrayList<String> idKeys = new ArrayList<String>();
     Post post;
@@ -69,18 +69,22 @@ public class PostActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post);
 
-        title = findViewById(R.id.titlu);
+        title = findViewById(R.id.title);
+        start = findViewById(R.id.start);
         date = findViewById(R.id.data);
         name = findViewById(R.id.name);
-        description = findViewById(R.id.descriere);
+        type = findViewById(R.id.type);
+        description = findViewById(R.id.description);
         user = FirebaseAuth.getInstance().getCurrentUser();
         reference = FirebaseDatabase.getInstance().getReference();
 
         userId = user.getUid();
         post = (Post) getIntent().getSerializableExtra("post");
         titleStr = post.get_destination();
+        startStr = post.get_start_location();
         dateStr = post.get_date();
         userStr = post.get_creator_id();
+        typeStr = post.get_travel_type();
         descriptionStr = post.get_description();
         messageBtn = findViewById(R.id.message);
         joinBtn = findViewById(R.id.join);
@@ -91,7 +95,9 @@ public class PostActivity extends AppCompatActivity {
         key = getIntent().getStringExtra("postKey");
 
         title.setText(titleStr);
+        start.setText(startStr);
         date.setText(dateStr);
+        type.setText(typeStr);
         description.setText(descriptionStr);
         profile = findViewById(R.id.profile_image);
 
@@ -343,10 +349,5 @@ public class PostActivity extends AppCompatActivity {
         SharedPreferences preferences = getSharedPreferences("add", MODE_PRIVATE);
         preferences.edit().clear().commit();
         Log.i("logx", "onDestroy");
-    }
-
-    @Override
-    public void onBackPressed() {
-        startActivity(new Intent(getApplicationContext(), HomeActivity.class));
     }
 }

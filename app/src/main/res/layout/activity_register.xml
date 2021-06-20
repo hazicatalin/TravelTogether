@@ -83,7 +83,7 @@
             android:layout_marginTop="10dp"
             android:layout_gravity="center"
             android:background="#00ffffff"
-            android:text="sign up"
+            android:text="register"
             android:textColor="#f5f5f5"
             android:textSize="18sp"
             android:textStyle="bold"

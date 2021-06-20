@@ -62,7 +62,7 @@ public class LoginActivity extends AppCompatActivity {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 if(task.isSuccessful()){
-                                    Toast.makeText(LoginActivity.this, "Check your email to reset yout password!", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(LoginActivity.this, "Check your email to reset your password!", Toast.LENGTH_SHORT).show();
                                 }else{
                                     Toast.makeText(LoginActivity.this, "Something went wrong! Try again!", Toast.LENGTH_SHORT).show();
                                 }

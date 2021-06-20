@@ -40,7 +40,7 @@ import java.util.List;
 
 public class AddTripActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener{
     int ok_start = 1, ok_dest = 1, ok_save = 1;
-    private TextView dateText, startTw, destinationTw;
+    private TextView dateText, startTw, destinationTw, typeTw;
     EditText start, destination, description;
     String str_start, str_dest, str_desc, str_date, userId;
     RadioGroup radioGroup;
@@ -59,12 +59,13 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
         dateText = findViewById(R.id.data_text);
         addDate = findViewById(R.id.data_button);
         start = findViewById(R.id.start);
-        destination = findViewById(R.id.destinatie);
-        description = findViewById(R.id.descriere);
+        destination = findViewById(R.id.destination);
+        description = findViewById(R.id.description);
         radioGroup = findViewById(R.id.radio_group);
         create = findViewById(R.id.create_button);
         startTw = findViewById(R.id.start_tw);
-        destinationTw = findViewById(R.id.destinatie_tw);
+        destinationTw = findViewById(R.id.destination_tw);
+        typeTw = findViewById(R.id.type_tw);
 
         user = FirebaseAuth.getInstance().getCurrentUser();
         userId = user.getUid();
@@ -82,9 +83,9 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
                 Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fieldList).build(AddTripActivity.this);
                 startActivityForResult(intent, 100);
             }
-        });*/
+        });
 
-        /*destination.setFocusable(false);
+        destination.setFocusable(false);
         destination.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -145,11 +146,20 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
         reff = FirebaseDatabase.getInstance().getReference("Trips");
         String tripId = reff.push().getKey();
         radioButtonId = radioGroup.getCheckedRadioButtonId();
+        typeTw.setError(null);
+        typeTw.clearFocus();
+        startTw.setError(null);
+        startTw.clearFocus();
+        destinationTw.setError(null);
+        destinationTw.clearFocus();
+        dateText.setError(null);
+        dateText.clearFocus();
+        description.setError(null);
+        description.clearFocus();
         if (radioButtonId == -1)
         {
-            radioButton = findViewById(R.id.hike);
-            radioButton.setError("Select a travel type!");
-            radioGroup.requestFocus();
+            typeTw.setError("Select a travel type!");
+            typeTw.requestFocus();
             return;
         }
         if(str_start.isEmpty()){
@@ -304,7 +314,7 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
 
     @Override
     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-        str_date = "date: "+year+"/"+(month+1)+"/"+dayOfMonth;
+        str_date = +year+"/"+(month+1)+"/"+dayOfMonth;
         dateText.setText(str_date);
     }
 
