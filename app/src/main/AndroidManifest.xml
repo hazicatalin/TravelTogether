@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.traveltogether">
+    package="com.trav.traveltogether">
 
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.CAMERA"/>
@@ -13,17 +13,17 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.TravelTogether">
-        <activity android:name=".ChatActivity"></activity>
-        <activity android:name=".ProfileActivity" />
-        <activity android:name=".PostActivity" />
-        <activity android:name=".RegisterActivity" />
-        <activity android:name=".HomeActivity" />
-        <activity android:name=".MyProfileActivity" />
-        <activity android:name=".ChatsActivity" />
-        <activity android:name=".AddTripActivity" />
-        <activity android:name=".MyTripsActivity" />
-        <activity android:name=".LoginActivity" />
-        <activity android:name=".MainActivity">
+        <activity android:name="com.trav.traveltogether.ChatActivity"></activity>
+        <activity android:name="com.trav.traveltogether.ProfileActivity" />
+        <activity android:name="com.trav.traveltogether.PostActivity" />
+        <activity android:name="com.trav.traveltogether.RegisterActivity" />
+        <activity android:name="com.trav.traveltogether.HomeActivity" />
+        <activity android:name="com.trav.traveltogether.MyProfileActivity" />
+        <activity android:name="com.trav.traveltogether.ChatsActivity" />
+        <activity android:name="com.trav.traveltogether.AddTripActivity" />
+        <activity android:name="com.trav.traveltogether.MyTripsActivity" />
+        <activity android:name="com.trav.traveltogether.LoginActivity" />
+        <activity android:name="com.trav.traveltogether.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

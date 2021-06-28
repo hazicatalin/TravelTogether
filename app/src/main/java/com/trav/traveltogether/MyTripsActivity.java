@@ -1,4 +1,4 @@
-package com.example.traveltogether;
+package com.trav.traveltogether;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -11,7 +11,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -19,7 +18,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
@@ -28,7 +26,9 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.trav.traveltogether.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -43,28 +43,30 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-public class HomeActivity extends AppCompatActivity{
+public class MyTripsActivity extends AppCompatActivity{
 
     ListView listView;
-    ArrayList <Post> posts = new ArrayList <Post>();
+    ArrayList<Post> posts = new ArrayList <Post>();
     ArrayList<String> keys = new ArrayList<String>();
-    int image = R.drawable.im_travel;
-    ArrayList <Post> posts2 = new ArrayList <Post>();
-    ArrayList <Post> posts1 = new ArrayList <Post>();
     ArrayList<String> keys2 = new ArrayList<String>();
+    String userId;
+    int image = R.drawable.im_travel;
+    ArrayList <Post> posts1 = new ArrayList <Post>();
+    ArrayList <Post> posts2 = new ArrayList <Post>();
+    ArrayList <Post> posts3 = new ArrayList <Post>();
     Toolbar toolbar;
     private DatabaseReference reference;
-    Spinner spinner;
-
+    Spinner spinner, spinner1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
+        setContentView(R.layout.activity_my_trips);
 
-        reference = FirebaseDatabase.getInstance().getReference().child("Trips");
+        reference = FirebaseDatabase.getInstance().getReference();
         readTrips();
 
+        userId= FirebaseAuth.getInstance().getCurrentUser().getUid();
         listView = findViewById(R.id.travels_list);
         toolbar = findViewById(R.id.top_bar);
         toolbar.setTitle("");
@@ -72,7 +74,7 @@ public class HomeActivity extends AppCompatActivity{
         setSupportActionBar(toolbar);
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
-        bottomNavigationView.setSelectedItemId(R.id.home);
+        bottomNavigationView.setSelectedItemId(R.id.my_trips);
 
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener(){
             @Override
@@ -95,47 +97,69 @@ public class HomeActivity extends AppCompatActivity{
                         overridePendingTransition(0,0);
                         return true;
                     case R.id.my_trips:
-                        startActivity(new Intent(getApplicationContext(), MyTripsActivity.class));
-                        overridePendingTransition(0,0);
                         return true;
                 }
                 return false;
             }
         });
 
-
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(HomeActivity.this, posts.get(position).get_destination(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(MyTripsActivity.this, posts2.get(position).get_destination(), Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(getBaseContext(), PostActivity.class);
-                intent.putExtra("post", (Serializable) posts.get(position));
-                intent.putExtra("postKey", keys.get(position));
+                intent.putExtra("post", (Serializable) posts2.get(position));
+                intent.putExtra("postKey", keys2.get(position));
                 startActivity(intent);
             }
         });
     }
+
     public void readTrips(){
-        reference.addValueEventListener(new ValueEventListener() {
+        reference.child("Trips").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 keys.clear();
                 posts.clear();
                 for(DataSnapshot dataSnapshot: snapshot.getChildren()){
                     Post post = dataSnapshot.getValue(Post.class);
-                    SimpleDateFormat sdformat = new SimpleDateFormat("yyyy/MM/dd");
-                    Date d1 = null;
-                    Date d2=null;
-                    try {
-                        d1 = sdformat.parse(post.get_date());
-                        d2 = sdformat.parse(sdformat.format(new Date()));
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                    }
-                    Log.v("dataxx", "The date 2 is: " + sdformat.format(d2));
-                    if(d1.compareTo(d2) >= 0) {
-                        keys.add(dataSnapshot.getKey());
-                        posts.add(post);
+                    if(post.get_creator_id().equals(userId)) {
+                        SimpleDateFormat sdformat = new SimpleDateFormat("yyyy/MM/dd");
+                        Date d1 = null;
+                        Date d2=null;
+                        try {
+                            d1 = sdformat.parse(post.get_date());
+                            d2 = sdformat.parse(sdformat.format(new Date()));
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                        Log.v("dataxx", "The date 2 is: " + sdformat.format(d2));
+                        if(d1.compareTo(d2) >= 0) {
+                            keys.add(dataSnapshot.getKey());
+                            posts.add(post);
+                        }
+                    }else{
+                        for(DataSnapshot dataSnapshot1: dataSnapshot.child("participants").getChildren()){
+                            String id = dataSnapshot1.getValue(String.class);
+                            if(userId.equals(id)){
+                                SimpleDateFormat sdformat = new SimpleDateFormat("yyyy/MM/dd");
+                                Date d1 = null;
+                                Date d2=null;
+                                try {
+                                    d1 = sdformat.parse(post.get_date());
+                                    d2 = sdformat.parse(sdformat.format(new Date()));
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+                                Log.v("dataxx", "The date 2 is: " + sdformat.format(d2));
+                                if(d1.compareTo(d2) >= 0) {
+                                    keys.add(dataSnapshot.getKey());
+                                    posts.add(post);
+                                }
+                            }
+                        }
+
+
                     }
                 }
                 Collections.reverse(posts);
@@ -153,34 +177,88 @@ public class HomeActivity extends AppCompatActivity{
     }
 
     public void showTrips(){
-        spinner = findViewById(R.id.spinner);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(HomeActivity.this, R.array.travelTypes, android.R.layout.simple_spinner_item);
+        spinner = findViewById(R.id.spinner2);
+        spinner1 = findViewById(R.id.spinner1);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(MyTripsActivity.this, R.array.travelTypes, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter<CharSequence> adapter1 = ArrayAdapter.createFromResource(MyTripsActivity.this, R.array.myTrips, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        spinner1.setAdapter(adapter1);
+        spinner1.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String text = parent.getItemAtPosition(position).toString();
-                if(text.equals("All travel types")){
-                    HomeActivity.MyAdapter adapter2 = new MyAdapter(HomeActivity.this, posts);
-                    listView.setAdapter(adapter2);
+                if(text.equals("All trips")){
+                    posts1.clear();
+                    posts1.addAll(posts);
                 }
                 else{
-                    posts2.clear();
-                    for (int i = 0; i < posts.size(); i++) {
-                        if (posts.get(i).get_travel_type().toLowerCase().equals(text)) {
-                            posts2.add(posts.get(i));
+                    posts1.clear();
+                    if(text.equals("Posted trips")) {
+                        for (int i = 0; i < posts.size(); i++) {
+                            if (posts.get(i).get_creator_id().equals(userId)) {
+                                posts1.add(posts.get(i));
+                            }
                         }
                     }
-                    HomeActivity.MyAdapter adapter2 = new MyAdapter(HomeActivity.this, posts2);
-                    listView.setAdapter(adapter2);
+                    if(text.equals("Joined trips")) {
+                        for (int i = 0; i < posts.size(); i++) {
+                            if (!posts.get(i).get_creator_id().equals(userId)) {
+                                posts1.add(posts.get(i));
+                            }
+                        }
+                    }
                 }
+                posts2.clear();
+                posts2.addAll(posts3);
+                posts2.retainAll(posts1);
+                for (int i = 0; i <posts.size(); i++) {
+                    if(posts2.contains(posts.get(i))){
+                        keys2.add(keys.get(i));
+                    }
+                }
+                MyTripsActivity.MyAdapter adapter2 = new MyAdapter(MyTripsActivity.this, posts2);
+                listView.setAdapter(adapter2);
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
 
             }
         });
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String text = parent.getItemAtPosition(position).toString();
+                if(text.equals("All travel types")){
+                    posts3.clear();
+                    posts3.addAll(posts);
+                }
+                else{
+                    posts3.clear();
+                    for (int i = 0; i < posts.size(); i++) {
+                        if (posts.get(i).get_travel_type().toLowerCase().equals(text)) {
+                            posts3.add(posts.get(i));
+                        }
+                    }
+                }
+                posts2.clear();
+                posts2.addAll(posts3);
+                posts2.retainAll(posts1);
+                for (int i = 0; i <posts.size(); i++) {
+                    if(posts2.contains(posts.get(i))){
+                        keys2.add(keys.get(i));
+                    }
+                }
+                MyTripsActivity.MyAdapter adapter2 = new MyAdapter(MyTripsActivity.this, posts2);
+                listView.setAdapter(adapter2);
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
     }
 
     @Override
@@ -191,13 +269,13 @@ public class HomeActivity extends AppCompatActivity{
         MenuItem.OnActionExpandListener onActionExpandListener = new MenuItem.OnActionExpandListener() {
             @Override
             public boolean onMenuItemActionExpand(MenuItem item) {
-                Toast.makeText(HomeActivity.this, "Search is expanded", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MyTripsActivity.this, "Search is expanded", Toast.LENGTH_SHORT).show();
                 return true;
             }
 
             @Override
             public boolean onMenuItemActionCollapse(MenuItem item) {
-                Toast.makeText(HomeActivity.this, "Search is collapse", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MyTripsActivity.this, "Search is collapse", Toast.LENGTH_SHORT).show();
                 showTrips();
                 return true;
             }
@@ -219,7 +297,7 @@ public class HomeActivity extends AppCompatActivity{
                     for (int i = 0; i < posts2.size(); i++) {
                         posts1.add(posts2.get(i));
                     }
-                    HomeActivity.MyAdapter adapter2 = new MyAdapter(HomeActivity.this, posts2);
+                    MyTripsActivity.MyAdapter adapter2 = new MyAdapter(MyTripsActivity.this, posts2);
                     listView.setAdapter(adapter2);
                 }
                 else{
@@ -230,7 +308,7 @@ public class HomeActivity extends AppCompatActivity{
                             Log.v("nt", newText);
                         }
                     }
-                    HomeActivity.MyAdapter adapter2 = new MyAdapter(HomeActivity.this, posts1);
+                    MyTripsActivity.MyAdapter adapter2 = new MyAdapter(MyTripsActivity.this, posts1);
                     listView.setAdapter(adapter2);
                 }
                 return false;
@@ -239,9 +317,9 @@ public class HomeActivity extends AppCompatActivity{
         return true;
     }
 
-    class MyAdapter extends ArrayAdapter<Post>{
+    class MyAdapter extends ArrayAdapter<Post> {
         Context context;
-        List <Post> rPost;
+        List<Post> rPost;
         int rImage;
 
         MyAdapter (Context c, ArrayList<Post> post){
@@ -312,8 +390,7 @@ public class HomeActivity extends AppCompatActivity{
 
     @Override
     public void onBackPressed() {
-        HomeActivity.this.finishAffinity();
-        System.exit(0);
+        startActivity(new Intent(getApplicationContext(), HomeActivity.class));
+        overridePendingTransition(0,0);
     }
-
 }

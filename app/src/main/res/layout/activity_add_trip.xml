@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".AddTripActivity">
+    tools:context="com.trav.traveltogether.AddTripActivity">
 
     <ScrollView
         android:layout_width="fill_parent"

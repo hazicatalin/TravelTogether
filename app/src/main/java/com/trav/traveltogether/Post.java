@@ -1,8 +1,6 @@
-package com.example.traveltogether;
+package com.trav.traveltogether;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Post implements Serializable {
     public String destination, startLocation, description, creatorId, travelType, date;

@@ -1,4 +1,4 @@
-package com.example.traveltogether;
+package com.trav.traveltogether;
 
 import org.junit.Test;
 

@@ -1,4 +1,4 @@
-package com.example.traveltogether;
+package com.trav.traveltogether;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,19 +19,19 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
+import com.trav.traveltogether.R;
 import com.google.android.gms.common.api.Status;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.AutocompleteActivity;
-import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -75,7 +75,7 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
 
         Places.initialize(getApplicationContext(), "AIzaSyCqGZKpMWZ_lFV2jLKSngjdt1bJL92U4tc");
 
-        /*start.setFocusable(false);
+        start.setFocusable(false);
         start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -93,7 +93,7 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
                 Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fieldList).build(AddTripActivity.this);
                 startActivityForResult(intent, 101);
             }
-        });*/
+        });
 
         addDate.setOnClickListener(new View.OnClickListener() {
             @Override
