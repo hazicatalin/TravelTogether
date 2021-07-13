@@ -98,6 +98,11 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void onBackPressed(){
+        //startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+    }
+
     public void login(){
         String email = etEmail.getText().toString().trim(),
                 password = etPassword.getText().toString().trim();
